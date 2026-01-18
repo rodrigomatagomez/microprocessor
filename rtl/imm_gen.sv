@@ -16,7 +16,7 @@ module imm_gen(
     output logic [31:0] imm_out    // output for ALU and PC
     );
     
-`include "defines.sv"             //define the imm instructions 
+`include "defines.svh"             //define the imm instructions 
 
 always_comb begin 
     unique case (imm_sel)
@@ -65,7 +65,7 @@ always_comb begin
         IMM_J: begin // 100 = J-type
             imm_out = { {12{instr[31]}}, {instr[19:12], instr[20], instr[30:21], 1'b0 } };
         end
-        default: imm_out = IMM_NF;
+        default: imm_out = '0;
     endcase
 end
 

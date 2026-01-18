@@ -5,8 +5,7 @@ parameter DATA_WIDTH = 32;      // Ancho de instruccion (La instrucción complet
 parameter ADDR_WIDTH = 10;      // Ancho de dirección del PC (El PC maneja direcciones de 32 bits)
 parameter BYTE_WIDTH = 8;      // Ancho de cajón de la memoria (1 Byte)
 parameter MEM_DEPTH  = 1024;      // Numero de renglones de memoria
-parameter CLK_FREQ = 50_000_000; // CLOCK FREQUENCY OF THE SYSTEM
-parameter BAUD_SEL_SIZE = 3;
+//parameter CLK_FREQ = 50_000_000; // CLOCK FREQUENCY OF THE SYSTEM
 
 localparam BANK_DEPTH = MEM_DEPTH / 4; // 256 renglones por banco
 ///////////////////TYPE_R_INSTRUCTIONS////////////////////// 
@@ -58,8 +57,7 @@ localparam IMM_I = 3'b000;   // Type I  (ADDI, LW, JALR, etc.)
 localparam IMM_S = 3'b001;   // Type S  (SW, SH, SB)
 localparam IMM_B = 3'b010;   // Type B  (BEQ, BNE, etc.)
 localparam IMM_U = 3'b011;   // Type U  (LUI, AUIPC)
-localparam IMM_J = 3'b100;   // Type J  (JAL)
-localparam IMM_NF = 3'b101; //No function 
+localparam IMM_J = 3'b100;   // Type J  (JAL) 
 //define the directions of the mux for data memory
 localparam ALU_TO_PRF = 2'b00;
 localparam DATA_OUT_TO_PRF = 2'b01;

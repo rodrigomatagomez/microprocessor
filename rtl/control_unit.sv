@@ -10,7 +10,7 @@ module control_unit(
 	input logic [6:0]  opcode,             //instrucctions [6:0]
 	input logic [2:0]  funct_3,            //instructions [14:12]
 	input logic [6:0]  funct_7,            //instructions [31:25]
-	input logic        zero,	           //input from branch(module) if rs1 and rs2 are equal
+	input logic        zero,	       //input from branch(module) if rs1 and rs2 are equal
 	output logic       prf_wr_en,          //write enable of prf 
 	output logic [2:0] cu_imm_sel,         //control slector to immediate generator(imm_gen)
 	output logic       prf_pc_mux_ctrl,    //selector to control input in ALU opoerand 1
@@ -24,15 +24,15 @@ module control_unit(
 //Define the instructions 
 `include "defines.svh"
 	always_comb begin 
-	 prf_wr_en =             1'b1;          //enable prf write
-     cu_data_mem_wr_en =     1'b0;          //disable data_mem write
-     cu_imm_sel =            IMM_I;         //use IMM_I_TYPE decodification
-     prf_pc_mux_ctrl =       1'b0;          //use rs1 as opreand 1 in ALU
-     prf_imm_mux_ctrl =      1'b1;          //don't use rs2 instead use imm_gen as operand 2 in ALU
-     cu_pc_add_sel =         1'b0;          //Add +4 to pc_in
-     cu_mem_out_mux_sel =    ALU_TO_PRF;    //send the result of ALU to prf data_in
-     cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU  
-     branch_taken =          1'b0;          //Never take a branch in I_TYPE so that mux_pc_in is PC+4  
+		prf_wr_en =         	1'b1;          //enable prf write
+    		cu_data_mem_wr_en =     1'b0;          //disable data_mem write
+     		cu_imm_sel =            IMM_I;         //use IMM_I_TYPE decodification
+    		prf_pc_mux_ctrl =       1'b0;          //use rs1 as opreand 1 in ALU
+    	 	prf_imm_mux_ctrl =      1'b1;          //don't use rs2 instead use imm_gen as operand 2 in ALU
+    	 	cu_pc_add_sel =         1'b0;          //Add +4 to pc_in
+    	 	cu_mem_out_mux_sel =    ALU_TO_PRF;    //send the result of ALU to prf data_in
+    	 	cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU  
+    	 	branch_taken =          1'b0;          //Never take a branch in I_TYPE so that mux_pc_in is PC+4  
         case (opcode)
             OPCODE_I_TYPE: begin    //Type I instructions
                  case (funct_3) 

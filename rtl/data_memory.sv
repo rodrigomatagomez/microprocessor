@@ -1,36 +1,27 @@
-`timescale 1ns / 1ps
 module data_memory #(
-    parameter DATA_WIDTH = 32,      // Ancho de instruccion / dato
-    parameter ADDR_WIDTH = 32,      // Ancho de dirección del PC
-    parameter MEM_DEPTH  = 1024        // Profundidad (4 renglones: 0,1,2,3)
-    )(
-
-    input logic clk,
-    input logic w_en,             // Write Enable desde CU
-    input logic [ADDR_WIDTH-1:0] wr_addr,       // Address
-    input logic [DATA_WIDTH-1:0] data_in,      // Write data de memoria de datos
-    output logic [DATA_WIDTH-1:0] rd_data      // Read Data (Dato de salida) de memoria de datos
+    parameter DEPTH = 1024
+)(
+    input  logic        clk,
+    input  logic        wr_en,
+    input  logic [31:0] addr,      // byte address (ALU result)
+    input  logic [31:0] data_in,   // store data (rs2)
+    output logic [31:0] data_out   // raw 32-bit word read
 );
 
-    // Memoria de 32 bits y 1024 renglones
-    logic [DATA_WIDTH-1:0] ram [0:MEM_DEPTH-1]; 
+    logic [31:0] mem [0:DEPTH-1];
 
-    // Lectura debe de ser combinacional
-    assign rd_data = ram[wr_addr[ADDR_WIDTH-1:2]];
+    // Word index: byte address -> word address (drop 2 LSBs)
+    logic [$clog2(DEPTH)-1:0] word_idx;
+    assign word_idx = addr[11:2];  // for DEPTH=1024 (4KB), safe indexing
 
-    // 1. Inicialización (Limpieza)
-    initial begin
-        for (int i=0; i<MEM_DEPTH; i++) 
-            ram[i] = {DATA_WIDTH{1'b0}};    
-    end
-    
-    // Escritura debe de ser secuencial
+    // Combinational read 
+    assign data_out = mem[word_idx];
+
+    // Synchronous write
     always_ff @(posedge clk) begin
-        if (w_en) begin
-            ram[wr_addr[ADDR_WIDTH-1:2]] <= data_in;         //si WE es 1, se escribe en la ram el valor
+        if (wr_en) begin
+            mem[word_idx] <= data_in;
         end
     end
-    
-    
 
 endmodule
