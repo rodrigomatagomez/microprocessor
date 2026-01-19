@@ -2,6 +2,8 @@ src=microprocessor_top
 testname=test
 verbosity=UVM_MEDIUM
 .DEFAULT_GOAL := help
+MEM_FILE := program.mem
+MEM_SRC  := ../../rtl/program.mem
 
 list: # target
 	echo # rtl > list.f
@@ -42,3 +44,9 @@ help:
 clean:
 	rm -rf xvlog* xelab* xsim* webtalk* tr_db* ana elab sim .Xil vivado* work*
 	rmdir /s /q xsim.dir
+
+sim: elab $(MEM_FILE)
+	xsim work.${src}_tb -runall
+
+$(MEM_FILE): $(MEM_SRC)
+	cp -f $(MEM_SRC) $(MEM_FILE)
