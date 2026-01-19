@@ -1,4 +1,5 @@
 # ============================ rtl
+../../rtl/defines.svh
 ../../rtl/mux.sv
 ../../rtl/program_counter.sv
 ../../rtl/plus_4_or_2_mux.sv

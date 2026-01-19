@@ -27,15 +27,22 @@ module instruction_memory #(
     logic [DATA_WIDTH-1:0] mem [0:DEPTH-1];
 
     // Word index derived from byte-addressed PC
-    logic [$clog2(DEPTH)-1:0] pc_word_idx;
-    assign pc_word_idx = pc[11:2];
+    localparam int ADDR_W = $clog2(DEPTH);
+    logic [ADDR_W-1:0] pc_word_idx;
 
-    // Initialize instruction memory from hex file
+    // Drop 2 LSBs (byte -> word) and keep only the bits needed for DEPTH
+    assign pc_word_idx = pc[ADDR_W+1:2];
+
+    // Initialize instruction memory: default NOP, then overwrite with program.mem
+    integer i;
     initial begin
+        for (i = 0; i < DEPTH; i = i + 1) begin
+            mem[i] = 32'h00000013; // NOP
+        end
         $readmemh("program.mem", mem);
     end
 
-    // Combinational read
+    // Combinational read (single-cycle IMEM)
     assign instr = mem[pc_word_idx];
 
 endmodule

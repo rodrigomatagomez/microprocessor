@@ -1,0 +1,80 @@
+
+#
+# Mnemonic Maps
+#
+mmap new  -reuse -name {Boolean as Logic} -radix %b -contents {{%c=FALSE -edgepriority 1 -shape low}
+{%c=TRUE -edgepriority 1 -shape high}}
+mmap new  -reuse -name {Example Map} -radix %x -contents {{%b=11???? -bgcolor orange -label REG:%x -linecolor yellow -shape bus}
+{%x=1F -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=2C -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=* -label %x -linecolor gray -shape bus}}
+
+array unset createdGroup
+array set createdGroup {}
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.clk}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.arst_n}]}
+	} ]]
+set id [waveform add -cdivider divider]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.instr_mem_i.pc[31:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.instr_mem_i.instr[31:0]}]}
+	} ]]
+set id [waveform add -cdivider divider]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_en}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_data[31:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_dir[4:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.read_dir1[4:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.read_dir2[4:0]}]}
+	} ]]
+set id [waveform add -cdivider divider]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.alu_i.alucontrol[3:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.alu_i.operand1[31:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.alu_i.operand2[31:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.alu_i.alu_result[31:0]}]}
+	} ]]
+set id [waveform add -cdivider divider]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.imm_gen_i.instr[31:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.imm_gen_i.imm_sel[2:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.imm_gen_i.imm_out[31:0]}]}
+	} ]]
+set id [waveform add -cdivider divider]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.opcode[6:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.funct_3[2:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.funct_7[6:0]}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.branch_taken}]}
+	} ]]
+
+waveform xview limits 0 115ns
