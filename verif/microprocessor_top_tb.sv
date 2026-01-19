@@ -18,7 +18,7 @@ module microprocessor_top_tb();
     // Control de la simulación
     initial begin 
         wait (arst_n == 1'b1);        
-        repeat (10) @(posedge clk);   
+        repeat (6) @(posedge clk);   
         $finish;
     end
 

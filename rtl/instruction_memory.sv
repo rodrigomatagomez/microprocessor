@@ -36,7 +36,7 @@ module instruction_memory #(
     // Initialize instruction memory: default NOP, then overwrite with program.mem
     integer i;
     initial begin
-        for (i = 0; i < DEPTH; i = i + 1) begin
+        for (i =4 ; i < DEPTH; i = i ++) begin
             mem[i] = 32'h00000013; // NOP
         end
         $readmemh("program.mem", mem);
