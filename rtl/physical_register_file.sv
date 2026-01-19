@@ -1,45 +1,65 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: Cinvestav
-// Engineer: Armando sebastian Ramirez Jimenez
-// 
-// Create Date: 18.11.2025 15:36:43
-// Design Name: 
-// Module Name: bank_reg_s
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
-module physical_register_file #(parameter DIR_WIDTH = 10, parameter DATA_WIDTH = 256)(
-    input logic clk,                    //Clock signal
-    input logic arst_n,                 //Reset signal
-    input logic write_en,               //Write enable signal
-    input logic [DIR_WIDTH - 1:0] read_dir1,        //Read direction 1
-    input logic [DIR_WIDTH - 1:0] read_dir2,        //Read direction 2
-    input logic [DIR_WIDTH - 1:0] write_dir,        //Write direction
-    input logic [DATA_WIDTH - 1:0] write_data,      //Data to write
-    output logic [DATA_WIDTH - 1:0] read_data1,     //Readed Data 1
-    output logic [DATA_WIDTH - 1:0] read_data2      //Readed Data 2
-    );
-    logic [DATA_WIDTH - 1:0] prf [0:(2**DIR_WIDTH) - 1];    //Physical Register File 32*32bits
-    
-    always_ff@(posedge clk, negedge arst_n) begin 
-    //registers <= '{default:'0};
-        if (!arst_n) begin                        //Condition of reset
-        	prf [0] <= '0;
-        end else if (write_en) begin
-                prf [write_dir] <= write_data;              //Memory array assignation
+//------------------------------------------------------------------------------
+// Module: physical_register_file
+// Description:
+//   2-read / 1-write register file for an RV32-style datapath.
+//   Provides two combinational read ports and one synchronous write port.
+//   Register index 0 implements architectural x0 semantics (always reads as zero).
+//
+// Interface:
+//   - write_en / write_dir / write_data : synchronous write port
+//   - read_dir1 / read_dir2              : read addresses
+//   - read_data1 / read_data2            : combinational read outputs
+//
+// Assumptions:
+//   - Register addresses are 5 bits wide (32 registers total).
+//   - Write address and data are stable around the rising clock edge.
+//   - x0 must always read as zero, regardless of write attempts.
+//
+// Notes:
+//   - Writes to register 0 are explicitly blocked.
+//   - Reset initializes only register 0. Other registers are left unchanged
+//     until written (architecturally acceptable for RV32).
+//------------------------------------------------------------------------------
+module physical_register_file #(
+    parameter int DIR_WIDTH  = 5,   // 5 bits -> 32 registers
+    parameter int DATA_WIDTH = 32
+)(
+    input  logic                  clk,
+    input  logic                  arst_n,
+    input  logic                  write_en,
+    input  logic [DIR_WIDTH-1:0]   read_dir1,
+    input  logic [DIR_WIDTH-1:0]   read_dir2,
+    input  logic [DIR_WIDTH-1:0]   write_dir,
+    input  logic [DATA_WIDTH-1:0]  write_data,
+    output logic [DATA_WIDTH-1:0]  read_data1,
+    output logic [DATA_WIDTH-1:0]  read_data2
+);
+
+    // Register storage: 32 entries of 32 bits each
+    logic [DATA_WIDTH-1:0] prf [0:(2**DIR_WIDTH)-1];
+
+    //-------------------------------------------------------------------------
+    // Synchronous write port
+    //-------------------------------------------------------------------------
+    // - Active-low asynchronous reset initializes x0
+    // - Writes to x0 are blocked to preserve architectural semantics
+    //-------------------------------------------------------------------------
+    always_ff @(posedge clk or negedge arst_n) begin
+        if (!arst_n) begin
+            prf[0] <= '0;  // x0 hard-wired to zero
+        end else if (write_en && (write_dir != '0)) begin
+            prf[write_dir] <= write_data;
         end
     end
-assign read_data1 = read_dir1 == '0 ? '0 : prf [read_dir1];      //Assignation of readed data 1 depending of read direction 1
-assign read_data2 = read_dir2 == '0 ? '0 : prf [read_dir2];      //Assignation of readed data 2 depending of read direction 2
+
+    //-------------------------------------------------------------------------
+    // Combinational read ports
+    //-------------------------------------------------------------------------
+    // Reads from register 0 always return zero
+    assign read_data1 = (read_dir1 == '0) ? '0 : prf[read_dir1];
+    assign read_data2 = (read_dir2 == '0) ? '0 : prf[read_dir2];
+
 endmodule
+

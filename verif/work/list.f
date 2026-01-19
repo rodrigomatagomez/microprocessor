@@ -1,5 +1,16 @@
 # ============================ rtl
-	../../rtl/RTL1.sv
-
+../../rtl/mux.sv
+../../rtl/program_counter.sv
+../../rtl/plus_4_or_2_mux.sv
+../../rtl/adder.sv
+../../rtl/instruction_memory.sv
+../../rtl/physical_register_file.sv
+../../rtl/imm_gen.sv
+../../rtl/alu.sv
+../../rtl/branch.sv
+../../rtl/data_memory.sv
+../../rtl/mux_3_to_1.sv
+../../rtl/control_unit.sv
+../../rtl/microprocessor_top.sv
 # ============================ verification
-	../TB.sv
+../microprocessor_top_tb.sv

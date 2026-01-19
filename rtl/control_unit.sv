@@ -1,161 +1,148 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Rodrigo Mata 
-// Create Date: 14.11.2025 18:24:51
-// Design Name: 
-// Module Name: control_unit
-//////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+// Module: control_unit
+// Description:
+//   Combinational control unit for a single-cycle RV32I-style datapath.
+//   Decodes {opcode, funct3, funct7} and generates control signals for:
+//     - Register file write-back enable and write-back source selection
+//     - Immediate format selection (imm_gen control)
+//     - ALU operation selection
+//     - Data memory write enable (stores)
+//     - PC update decision (sequential vs branch/jump target)
+//
+// Supported instructions (current):
+//   - I-type: ADDI, SLTI, SLTIU, XORI, ORI, ANDI
+//   - R-type: ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND
+//   - B-type: BEQ (branch decision uses input 'zero')
+//   - J-type: JAL (unconditional)
+//
+// Assumptions:
+//   - 'zero' is asserted when rs1 == rs2 (BEQ compare evaluated externally).
+//   - Control encodings (IMM_*, ALU_*, mux selects, opcodes) are defined in defines.svh.
+//   - PC-target computation (PC + imm) and PC muxing are implemented outside this module.
+//
+// Notes:
+//   - Default assignments implement the common I-type ALU-immediate path.
+//     Opcode decoding below overrides only what differs per instruction class.
+//   - Assertions for illegal/unsupported encodings can be added in a later stage.
+//------------------------------------------------------------------------------
 module control_unit(
-	input logic [6:0]  opcode,             //instrucctions [6:0]
-	input logic [2:0]  funct_3,            //instructions [14:12]
-	input logic [6:0]  funct_7,            //instructions [31:25]
-	input logic        zero,	       //input from branch(module) if rs1 and rs2 are equal
-	output logic       prf_wr_en,          //write enable of prf 
-	output logic [2:0] cu_imm_sel,         //control slector to immediate generator(imm_gen)
-	output logic       prf_pc_mux_ctrl,    //selector to control input in ALU opoerand 1
-	output logic       prf_imm_mux_ctrl,   //selector to control input in ALU opereand 2
-	output logic [3:0] cu_alu_ctrl,        //selector for ALU operation
-	output logic [1:0] cu_mem_out_mux_sel, //selector for mux data_out,alu_result,next_instruction directions to prf data in
-	output logic       cu_data_mem_wr_en,  //write enable for data mem
-	output logic       cu_pc_add_sel,      //selector to add +4 or +2 to the next instrucion (+2 is for future architecture implementation) 
-	output logic       branch_taken        //flag in order to evaluate only in  BEQ and JAL instructions 
+    input  logic [6:0]  opcode,             // instr[6:0]
+    input  logic [2:0]  funct_3,            // instr[14:12]
+    input  logic [6:0]  funct_7,            // instr[31:25]
+    input  logic        zero,               // 1 when rs1 == rs2 (BEQ condition)
+    output logic        prf_wr_en,           // register file write enable
+    output logic [2:0]  cu_imm_sel,          // immediate format select (imm_gen)
+    output logic        prf_pc_mux_ctrl,     // ALU operand1 select (rs1 vs PC)
+    output logic        prf_imm_mux_ctrl,    // ALU operand2 select (rs2 vs imm)
+    output logic [3:0]  cu_alu_ctrl,         // ALU operation select
+    output logic [1:0]  cu_mem_out_mux_sel,  // write-back mux select (to PRF)
+    output logic        cu_data_mem_wr_en,   // data memory write enable (stores)
+    output logic        cu_pc_add_sel,       // PC increment select (+4 now; +2 reserved)
+    output logic        branch_taken         // PC redirect request (branch/jump)
 );
-//Define the instructions 
+
 `include "defines.svh"
-	always_comb begin 
-		prf_wr_en =         	1'b1;          //enable prf write
-    		cu_data_mem_wr_en =     1'b0;          //disable data_mem write
-     		cu_imm_sel =            IMM_I;         //use IMM_I_TYPE decodification
-    		prf_pc_mux_ctrl =       1'b0;          //use rs1 as opreand 1 in ALU
-    	 	prf_imm_mux_ctrl =      1'b1;          //don't use rs2 instead use imm_gen as operand 2 in ALU
-    	 	cu_pc_add_sel =         1'b0;          //Add +4 to pc_in
-    	 	cu_mem_out_mux_sel =    ALU_TO_PRF;    //send the result of ALU to prf data_in
-    	 	cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU  
-    	 	branch_taken =          1'b0;          //Never take a branch in I_TYPE so that mux_pc_in is PC+4  
-        case (opcode)
-            OPCODE_I_TYPE: begin    //Type I instructions
-                 case (funct_3) 
-                     //(addi)
-                    ADDI: begin 
-                        cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU
-                    end 
-                    //(slti)
-                    SLTI: begin 
-                        cu_alu_ctrl =           ALU_SLT;       //SLT operation in ALU       
-                    end
-                    //(sltiu)
-                    SLTIU: begin 
-                        cu_alu_ctrl =           ALU_SLTU;      //SLTU operation in ALU   
-                    end
-                    //(xori)
-                    XORI: begin 
-                        cu_alu_ctrl =           ALU_XOR;       //XOR operation in ALU
-                    end
-                    //(slti)
-                    ORI: begin 
-                        cu_alu_ctrl =           ALU_OR;        //OR operation in ALU      
-                    end
-                    //(ANDI)
-                    ANDI: begin 
-                        cu_alu_ctrl =           ALU_AND;       //AND operation in ALU
-                    end
-                    default: begin                   
-                        cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU
-                    end
-                 endcase
-            end	
-            OPCODE_B_TYPE: begin    //Type B instructions 
-                prf_wr_en =             1'b0;          //disable prf write
-                cu_imm_sel =            IMM_B;         //use IMM_B_TYPE 
-                prf_pc_mux_ctrl =       1'b1;          //use rs1 as opreand 1 in ALU
-                    //Type B(BEQ)
-                    case (funct_3)
-                        BEQ: begin
-                            if (zero == 1'b1) begin //This flag is going to be '1' if rs1 = rs2
-                                cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU
-                                branch_taken = 1'b1;                   //Select the direction of the branch (branch taken)
-                            end else 
-                                branch_taken = 1'b0;                  
-                        end
-                        //TODO: Add more types of branches in order to roun any program 
-                        default: begin 
-                            cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU
-                            branch_taken =          1'b0;          //branch not taken
-                        end                    
-                    endcase
+
+    always_comb begin
+        //-------------------------------------------------------------------------
+        // Defaults: I-type ALU-immediate behavior
+        //   - rd write enabled
+        //   - ALU computes rs1 + imm
+        //   - PC advances sequentially (+4)
+        // Opcode decode below overrides these defaults as required.
+        //-------------------------------------------------------------------------
+        prf_wr_en          = 1'b1;
+        cu_data_mem_wr_en  = 1'b0;
+        cu_imm_sel         = IMM_I;
+        prf_pc_mux_ctrl    = 1'b0;        // operand1 = rs1
+        prf_imm_mux_ctrl   = 1'b1;        // operand2 = imm
+        cu_pc_add_sel      = 1'b0;        // +4 in RV32; +2 reserved for future compressed support
+        cu_mem_out_mux_sel = ALU_TO_PRF;  // write-back = ALU result
+        cu_alu_ctrl        = ALU_ADD;
+        branch_taken       = 1'b0;        // default: no PC redirect
+
+        unique case (opcode)
+
+            // I-type ALU-immediate ops: rd <- rs1 op imm
+            OPCODE_I_TYPE: begin
+                unique case (funct_3)
+                    ADDI:   cu_alu_ctrl = ALU_ADD;
+                    SLTI:   cu_alu_ctrl = ALU_SLT;
+                    SLTIU:  cu_alu_ctrl = ALU_SLTU;
+                    XORI:   cu_alu_ctrl = ALU_XOR;
+                    ORI:    cu_alu_ctrl = ALU_OR;
+                    ANDI:   cu_alu_ctrl = ALU_AND;
+                    default:cu_alu_ctrl = ALU_ADD;
+                endcase
             end
+
+            // B-type branch: no write-back; PC redirected when branch_taken=1
+            OPCODE_B_TYPE: begin
+                prf_wr_en       = 1'b0;   // branches do not write rd
+                cu_imm_sel      = IMM_B;  // branch offset immediate
+                prf_pc_mux_ctrl = 1'b1;   // operand1 = rs1 (as defined by your datapath for target calc)
+
+                unique case (funct_3)
+                    // BEQ: take branch when rs1 == rs2 (zero=1)
+                    BEQ: begin
+                        cu_alu_ctrl   = ALU_ADD; // used for target computation elsewhere (PC + imm path)
+                        branch_taken  = zero;    // redirect request when condition is true
+                    end
+
+                    // TODO: Add other branch types (BNE/BLT/BGE/BLTU/BGEU)
+                    default: begin
+                        cu_alu_ctrl  = ALU_ADD;
+                        branch_taken = 1'b0;
+                    end
+                endcase
+            end
+
+            // R-type ALU-register ops: rd <- rs1 op rs2
             OPCODE_R_TYPE: begin
-                 cu_imm_sel =            IMM_NF;         //use IMM_NO_FUNCTION_TYPE 
-                 prf_imm_mux_ctrl =      1'b0;          //use rs2 as operand 2 in ALU
-                 if (funct_7 == 7'b0000000) begin       //The instructions bellow have this code  funct_7
-                     case (funct_3)     //The changes of this types of R operations comes from funct_3
-                         //ADDITION OPERATION
-                         ADD: begin 
-                             cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU
-                         end
-                         //LOGICAL LEFT SHIFT
-                         SLL: begin 
-                             cu_alu_ctrl =           ALU_SLL;       //SLL operation in ALU
-                         end
-                         //SIGNED COMPARISON
-                         SLT: begin 
-                             cu_alu_ctrl =           ALU_SLT;       //SLT operation in ALU
-                         end
-                         //UNSIGNED COMPARISON
-                         SLTU: begin 
-                             cu_alu_ctrl =           ALU_SLTU;       //SLTU operation in ALU
-                         end
-                         //XOR
-                         XOR_: begin 
-                             cu_alu_ctrl =           ALU_XOR;       //XOR operation in ALU
-                         end
-                         //RIGHT LOGICAL SHIFT 
-                         SRL: begin 
-                             cu_alu_ctrl =           ALU_SRL;       //SRL operation in ALU
-                         end
-                         //OR
-                         OR_: begin 
-                             cu_alu_ctrl =           ALU_OR;        //OR operation in ALU
-                         end
-                         //AND
-                         AND_: begin 
-                             cu_alu_ctrl =           ALU_AND;       //AND operation in ALU
-                         end
-                         default: begin 
-                             cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU
-                         end
-                     endcase
-                 end else if (funct_7 == 7'b0100000) begin   //The instructions bellow have this code  funct_7
-                     case(funct_3) 
-                         //SUBTRACTION OPERATION
-                         SUB: begin
-                             cu_alu_ctrl =           ALU_SUB;       //SUB operation in ALU
-                         end
-                         //SIGN-EXTEND SHIFT OPERATION
-                         SRA: begin 
-                             cu_alu_ctrl =           ALU_SRA;       //Arithmetic right shift operation in ALU
-                         end
-                         default: begin
-                             cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU
-                         end
-                     endcase 
-                 end else begin 
-                     cu_alu_ctrl =           ALU_ADD;               //ADD operation in ALU   
-                 end
+                prf_imm_mux_ctrl = 1'b0; // operand2 = rs2 (not immediate)
+
+                // funct7 selects ADD/SUB and SRL/SRA families in RV32I
+                if (funct_7 == 7'b0000000) begin
+                    unique case (funct_3)
+                        ADD:   cu_alu_ctrl = ALU_ADD;
+                        SLL:   cu_alu_ctrl = ALU_SLL;
+                        SLT:   cu_alu_ctrl = ALU_SLT;
+                        SLTU:  cu_alu_ctrl = ALU_SLTU;
+                        XOR_:  cu_alu_ctrl = ALU_XOR;
+                        SRL:   cu_alu_ctrl = ALU_SRL;
+                        OR_:   cu_alu_ctrl = ALU_OR;
+                        AND_:  cu_alu_ctrl = ALU_AND;
+                        default:cu_alu_ctrl = ALU_ADD;
+                    endcase
+                end else if (funct_7 == 7'b0100000) begin
+                    unique case (funct_3)
+                        SUB:   cu_alu_ctrl = ALU_SUB;
+                        SRA:   cu_alu_ctrl = ALU_SRA;
+                        default:cu_alu_ctrl = ALU_ADD;
+                    endcase
+                end else begin
+                    cu_alu_ctrl = ALU_ADD; // unsupported funct7 -> safe default
+                end
             end
-            OPCODE_J_TYPE: begin    //In this RISCV architecture it only exists jump and link (JAL) operation
-                 cu_imm_sel =            IMM_J;                 //use IMM_NO_FUNCTION_TYPE 
-                 prf_pc_mux_ctrl =       1'b1;                  //use pc_out as opreand 1 in ALU
-                 cu_mem_out_mux_sel =    INSTRUCTION_TO_PRF;    //send the result of ALU to prf data_in       
-                 cu_alu_ctrl =           ALU_ADD;               //ALU operation in ALU
-                 branch_taken =          1'b1;                  //always take the branch
-            end	
-            //TODO: Add more types of J instructions
-            default: begin 
-                 prf_wr_en =             1'b0;          //enable prf write
-                 cu_alu_ctrl =           ALU_ADD;       //ADD operation in ALU   
+
+            // JAL: rd <- PC+4, PC <- PC + imm (unconditional redirect)
+            OPCODE_J_TYPE: begin
+                cu_imm_sel         = IMM_J;               // jump offset immediate
+                prf_pc_mux_ctrl    = 1'b1;                // operand1 = PC (for target calc path)
+                cu_mem_out_mux_sel = INSTRUCTION_TO_PRF;  // write-back selects PC+4 (per your datapath naming)
+                cu_alu_ctrl        = ALU_ADD;
+                branch_taken       = 1'b1;                // unconditional redirect
             end
-        endcase  
-	end
+
+            // Default: unsupported opcode -> disable write-back to avoid corrupting state
+            default: begin
+                prf_wr_en    = 1'b0;
+                cu_alu_ctrl  = ALU_ADD;
+                branch_taken = 1'b0;
+            end
+        endcase
+    end
+
 endmodule

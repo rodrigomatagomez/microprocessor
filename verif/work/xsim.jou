@@ -1,0 +1,25 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Sun Jan 18 16:56:54 2026
+# Process ID         : 13227
+# Current directory  : /home/rodrigo-mata/Documents/git/microprocessor/verif/work
+# Command line       : xsim -mode tcl -source {xsim.dir/work.microprocessor_top_tb/xsim_script.tcl}
+# Log file           : /home/rodrigo-mata/Documents/git/microprocessor/verif/work/xsim.log
+# Journal file       : /home/rodrigo-mata/Documents/git/microprocessor/verif/work/xsim.jou
+# Running On         : MataPC
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.3 LTS
+# Processor Detail   : AMD Ryzen 5 2400G with Radeon Vega Graphics
+# CPU Frequency      : 3114.114 MHz
+# CPU Physical cores : 4
+# CPU Logical cores  : 8
+# Host memory        : 14556 MB
+# Swap memory        : 9517 MB
+# Total Virtual      : 24074 MB
+# Available Virtual  : 21328 MB
+#-----------------------------------------------------------
+source xsim.dir/work.microprocessor_top_tb/xsim_script.tcl
+run -all

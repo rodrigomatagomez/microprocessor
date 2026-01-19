@@ -4,10 +4,7 @@ parameter DIR_WIDTH = 5;
 parameter DATA_WIDTH = 32;      // Ancho de instruccion (La instrucción completa mide 32 bits)
 parameter ADDR_WIDTH = 10;      // Ancho de dirección del PC (El PC maneja direcciones de 32 bits)
 parameter BYTE_WIDTH = 8;      // Ancho de cajón de la memoria (1 Byte)
-parameter MEM_DEPTH  = 1024;      // Numero de renglones de memoria
-//parameter CLK_FREQ = 50_000_000; // CLOCK FREQUENCY OF THE SYSTEM
-
-localparam BANK_DEPTH = MEM_DEPTH / 4; // 256 renglones por banco
+parameter DEPTH  = 1024;      // Numero de renglones de memoria
 ///////////////////TYPE_R_INSTRUCTIONS////////////////////// 
 localparam OPCODE_R_TYPE = 7'b0110011;	//Type R-Instruction  ---51
 //TYPES OF OPERATIONS

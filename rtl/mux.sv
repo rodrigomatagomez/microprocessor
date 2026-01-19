@@ -1,9 +1,28 @@
-module mux #( parameter WIDTH = 32)(
+//------------------------------------------------------------------------------
+// Module: mux
+// Description:
+//   Parameterized 2-to-1 combinational multiplexer.
+//
+// Assumptions:
+//   - sel is a stable control signal.
+//   - in1 and in2 have the same width (WIDTH).
+//
+// Notes:
+//   - When sel = 0, output selects in2.
+//   - When sel = 1, output selects in1.
+//------------------------------------------------------------------------------
+module mux #(
+    parameter int WIDTH = 32
+)(
     input  logic [WIDTH-1:0] in1,
-    input  logic [WIDTH-1:0] in2,      // array of N inputs
-    input  logic             sel,      // select
-    output logic [WIDTH-1:0] out       // mux output
+    input  logic [WIDTH-1:0] in2,
+    input  logic             sel,
+    output logic [WIDTH-1:0] out
 );
-    assign out = (sel) ? in1 : in2; //0 = in_2
+
+    // sel = 0 -> in2
+    // sel = 1 -> in1
+    assign out = sel ? in1 : in2;
+
 endmodule
 

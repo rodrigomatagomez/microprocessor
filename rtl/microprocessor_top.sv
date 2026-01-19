@@ -1,219 +1,216 @@
+`timescale 1ns / 1ps
+
+//------------------------------------------------------------------------------
+// Module: microprocessor_top
+// Description:
+//   Top-level integration for a single-cycle RV32-style microprocessor datapath.
+//   Contains:
+//     - PC register and next-PC selection (sequential vs redirect)
+//     - Instruction fetch (instruction memory)
+//     - Register file read/write-back
+//     - Immediate generation
+//     - ALU execute
+//     - Data memory (stores/loads when implemented)
+//     - Control unit decode and branch decision
+//
+// Notes:
+//   - Signal naming follows datapath intent: pc_* , if_* , id_* , ex_* , mem_* , wb_*
+//   - This module is structural (wires + instantiations) and contains no state
+//     besides submodules (PC, RF, memories).
+//------------------------------------------------------------------------------
 module microprocessor_top (
-    input logic clk, 
-    input logic arst_n,
-    output logic prog_ack,
-    output logic new_data,
-    output logic start,
-	
-    input logic rx,
-    input logic [BAUD_SEL_SIZE - 1 : 0] baud_sel,
-    output logic prog_rdy,
-    output logic rx_done,
-    output logic [((DATA_WIDTH / 4) * 7) - 1 : 0] display,
-    output logic [DATA_WIDTH - 1 : 0] read_data,
-	 output logic ready,
-	 output logic [3:0] state,
-	 output logic busy	
+    input logic clk,
+    input logic arst_n
 );
 
-`include "defines.sv"
+`include "defines.svh"
 
-logic [DATA_WIDTH - 1:0] pc_mux_out; //enable of PC_4 or PC_BRANCH
-logic [DATA_WIDTH - 1:0] rdaddr; // Current instruction to read in instruction memory
-logic cu_pc_add_sel; // Selector to add +4 or +2 
-logic [2:0] instruction_increment; // operand to add +4 o +2 
-logic [DATA_WIDTH - 1:0] instruction_out; //instruction from instruction memory
-logic prf_wr_en; //prf write enable 
-logic [DATA_WIDTH - 1:0] rs_1; //reg_1
-logic [DATA_WIDTH - 1:0] rs_2; //reg_2
-logic [DATA_WIDTH - 1:0] mem_mux_out;
-logic pc_mux_ctrl; // use rs1 or pc_out
-logic imm_mux_ctrl; //use rs2 or imm_out 
-logic [DATA_WIDTH - 1:0] mux_to_operand_1; // operand 1 for ALU
-logic [DATA_WIDTH - 1:0] mux_to_operand_2; // operand 2 for ALU
-logic [DATA_WIDTH - 1:0] imm_to_operand_2; // imm out to mux for 
-logic [3:0] cu_alu_ctrl; //selector for ALU operations
-logic [DATA_WIDTH - 1:0] alu_to_mem_addr; // Resutl of ALU
-logic [DATA_WIDTH - 1:0] next_instruction_addr;  //  add pc + 4 or pc + immediate
-logic cu_data_mem_wr_en; // enable data memory write
-logic [2:0] cu_imm_sel; //selector of IMM_TYPE
-logic [1:0] cu_mem_out_mux_sel; // selector for mux to MEM,ALU,PC directions
-logic branch_taken; //selector for add pc + 4 or pc + immediate
-logic [31:0] data_in;
-logic zero;
-logic [31:0] fibb_out;
-//INPUT MUX FOR PC
-mux #(.WIDTH(DATA_WIDTH)) pc_mux_i(
-    .in1(alu_to_mem_addr),
-    .in2(next_instruction_addr),
-    .sel(branch_taken),
-    .out(pc_mux_out)   
-);
-//PROGRAM COUNTER
-program_counter pc_i (
-    .clk(clk),
-    .arst_n(arst_n),
-    .prog_ready(prog_rdy),
-    .pc_in(pc_mux_out),
-    .prog_ack(prog_ack),
-    .pc_out(rdaddr)
+    //--------------------------------------------------------------------------
+    // IF: Program Counter and Instruction Fetch
+    //--------------------------------------------------------------------------
 
-);
-//MUX OPERANDS FOR PROGRAM COUNTER ADD
-plus_4_or_2_mux pc_adder_i (
-    .sel(cu_pc_add_sel),
-    .instruction_add(instruction_increment)
-);
-//ADDER FOR PROGRAM COUNTER
-adder #(.DATA_WIDTH(DATA_WIDTH)) instruction_adder_i (
-    .constant_operand(instruction_increment),
-    .instruction_addr(rdaddr),
-    .next_instruction (next_instruction_addr)
-);
-//INSTRUCTION MEMORY
+    logic [DATA_WIDTH-1:0] pc_q;            // current PC (byte address)
+    logic [DATA_WIDTH-1:0] pc_next;         // next PC selected by pc_next mux
+    logic [DATA_WIDTH-1:0] pc_plus_inc;     // sequential next PC (PC + inc)
+    logic                  pc_inc_sel;      // +4 vs +2 selector (future)
+    logic [2:0]            pc_inc;          // increment constant (2 or 4)
+    logic [DATA_WIDTH-1:0] instr;           // fetched instruction
 
-//PHYSICAL REGISTER FILE 
-physical_register_file #(.DIR_WIDTH(DIR_WIDTH), .DATA_WIDTH(DATA_WIDTH)) prf_i (
-    .clk(clk),
-    .arst_n(arst_n),
-    .write_en(prf_wr_en),
-    .read_dir1(instruction_out[19:15]),
-    .read_dir2(instruction_out[24:20]),
-    .write_dir(instruction_out[11:7]),
-    .write_data(mem_mux_out),
-    .read_data1(rs_1),
-    .fibb_out(fibb_out),
-    .read_data2(rs_2)
-);
-//MUX FOR OPERAND 1 IN ALU
-mux #(.WIDTH(DATA_WIDTH)) pc_reg1_mux_i(
-    .in1(rdaddr),
-    .in2(rs_1),
-    .sel(pc_mux_ctrl),
-    .out(mux_to_operand_1)   
-);
-//MUX FOR OPERAND 2 IN ALU
-mux #(.WIDTH(DATA_WIDTH)) imm_reg2_mux_i(
-    .in1(imm_to_operand_2),
-    .in2(rs_2),
-    .sel(imm_mux_ctrl),
-    .out(mux_to_operand_2)   
-);
-//ARITHMETIC LOGIC UNIT
-alu #(.N(DATA_WIDTH)) alu_i(
-    .operand1(mux_to_operand_1),
-    .operand2(mux_to_operand_2),
-    .alucontrol(cu_alu_ctrl),
-    .alu_result(alu_to_mem_addr)
-);
-//DATA MEMORY
-data_memory #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH), .MEM_DEPTH(MEM_DEPTH)) data_memory_i(
-    .clk(clk),
-    .w_en(cu_data_mem_wr_en),
-    .wr_addr(alu_to_mem_addr),
-    .data_in(rs_2),
-    .rd_data(data_out)
-);
+    // Next-PC select:
+    //   - branch_taken=0 -> sequential PC+4
+    //   - branch_taken=1 -> redirect target (computed in EX path)
+    logic                  branch_taken;
+    logic [DATA_WIDTH-1:0] branch_target;   // target address (PC + imm), produced in EX
 
-//instanciation of immgen
-imm_gen imm_gen_i (
-    .instr(instruction_out),
-    .imm_sel(cu_imm_sel),
-    .imm_out(imm_to_operand_2)
-);
+    // PC next mux: select sequential or redirect target
+    mux #(.WIDTH(DATA_WIDTH)) upc_next_mux_i (
+        .in1(branch_target),     // sel=1 -> redirect
+        .in2(pc_plus_inc),       // sel=0 -> sequential
+        .sel(branch_taken),
+        .out(pc_next)
+    );
 
-//CONTROL UNIT 
-control_unit control_unit_i (
-    .opcode   (instruction_out[6:0]),
-    .funct_7  (instruction_out[31:25]),
-    .funct_3  (instruction_out[14:12]),
-    .prf_wr_en(prf_wr_en),
-    .cu_imm_sel(cu_imm_sel),
-    .prf_pc_mux_ctrl(pc_mux_ctrl),
-    .prf_imm_mux_ctrl(imm_mux_ctrl),
-    .cu_alu_ctrl(cu_alu_ctrl),
-    .cu_mem_out_mux_sel(cu_mem_out_mux_sel),
-    .cu_data_mem_wr_en(cu_data_mem_wr_en),
-    .cu_pc_add_sel(cu_pc_add_sel),
-    .zero(zero),
-    .branch_taken(branch_taken)
-);
+    // PC register
+    program_counter pc_i (
+        .clk   (clk),
+        .arst_n(arst_n),
+        .pc_in (pc_next),
+        .pc_out(pc_q)
+    );
 
-//BRANCH
-branch #(.DATA_WIDTH(DATA_WIDTH)) branch_i (
-    .rs_1(rs_1),
-    .rs_2(rs_2),
-    .branch_taken(zero)
-);
-//MUX MEM,ALU,PC directions
-mux_3_to_1  data_mem_mux_i (
-    .data_out_to_pc(next_instruction_addr),
-    .alu_to_mem_addr(alu_to_mem_addr),
-    .data_out_to_mux(data_out),
-    .sel(cu_mem_out_mux_sel),
-    .data_out(mem_mux_out)
-);
+    // PC increment select (+4 now; +2 reserved for future compressed support)
+    plus_4_or_2_mux pc_inc_sel_i (
+        .sel            (pc_inc_sel),
+        .instruction_add(pc_inc)
+    );
 
-assign start = prf_wr_en;
-assign new_data = branch_taken;
+    // PC + increment
+    adder #(.DATA_WIDTH(DATA_WIDTH)) pc_adder_i (
+        .constant_operand(pc_inc),
+        .instruction_addr(pc_q),
+        .next_instruction (pc_plus_inc)
+    );
 
+    // Instruction memory (word-indexed; PC is byte-addressed)
+    instruction_memory #(.DATA_WIDTH(DATA_WIDTH), .DEPTH(DEPTH)) instr_mem_i (
+        .pc   (pc_q),
+        .instr(instr)
+    );
 
-/////////////////////////////////////////////////////// UART ///////////////////////////////////////////////////////////////////////////
+    //--------------------------------------------------------------------------
+    // ID: Decode and Register File Read
+    //--------------------------------------------------------------------------
 
-logic tick;
-logic inst_rdy;
-logic [BYTE_WIDTH - 1 : 0] uart_byte;
-logic [ADDR_WIDTH - 1 : 0] wr_addr;
-logic [BYTE_WIDTH - 1 : 0] n_instructions;
-logic [DATA_WIDTH - 1 : 0] shift_fsm_out;
+    logic                  rf_we;
+    logic [DATA_WIDTH-1:0] rs1_data;
+    logic [DATA_WIDTH-1:0] rs2_data;
 
-shift_register_fsm #(.BYTE_WIDTH(BYTE_WIDTH), .ADDR_WIDTH(ADDR_WIDTH)) shift_register_fsm_i(
-    .clk (clk),
-    .arst_n (arst_n),
-	 .next_program(prog_ack),
-    .w_en (rx_done), // input write enable coming from uart rx_done
-    .data_in (uart_byte), // data_in coming from uart data_out port
-    .data_out (shift_fsm_out), // data out to be written in the program memory after receiving 4 bytes from uart
-    .wr_addr (wr_addr), // write addres for the memory
-    .inst_rdy (inst_rdy), // flag to indicate that a instruction is ready, this is the write enable for the memory
-	 .n_instructions(n_instructions),
-	 .busy(busy),
-	 .state(state),
-	 .ready(ready),
-    .prog_rdy (prog_rdy)  // flag to indicate that the program has been initialized into the memory
-);
+    // Write-back data (selected later)
+    logic [DATA_WIDTH-1:0] wb_data;
 
+    physical_register_file #(.DIR_WIDTH(DIR_WIDTH), .DATA_WIDTH(DATA_WIDTH)) prf_i (
+        .clk       (clk),
+        .arst_n    (arst_n),
+        .write_en  (rf_we),
+        .read_dir1 (instr[19:15]),   // rs1
+        .read_dir2 (instr[24:20]),   // rs2
+        .write_dir (instr[11:7]),    // rd
+        .write_data(wb_data),
+        .read_data1(rs1_data),
+        .read_data2(rs2_data)
+    );
 
-baud_rate_generator #(.CLK_FREQ(CLK_FREQ)) baud_rate_generator_i(
-    .clk(clk),
-    .arst_n(arst_n),
-    .tick(tick),
-    .baud_sel(baud_sel)
-);
+    //--------------------------------------------------------------------------
+    // ID/EX: Immediate Generation and Operand Select
+    //--------------------------------------------------------------------------
 
- 
-display_7_segments #(.DATA_WIDTH(DATA_WIDTH)) display_7_segments_i(
-    .data_in (fibb_out),
-    .display (display)
-);
- 
-receiver #(.BYTE_WIDTH(BYTE_WIDTH)) receiver_i(
-.clk(clk),
-.arst_n(arst_n),
-.tick(tick),
-.rx(rx), // RX CONNECTED TO THE TX FROM THE TRANSMITTER MODULE
-.rx_done(rx_done),
-.data_out(uart_byte)
-);
+    logic [2:0]            imm_sel;
+    logic [DATA_WIDTH-1:0] imm;
 
-instruction_memory #(.BYTE_WIDTH(BYTE_WIDTH), .ADDR_WIDTH(ADDR_WIDTH), .MEM_DEPTH(MEM_DEPTH), .DATA_WIDTH(DATA_WIDTH)) instruction_memory_i(
-.clk(clk),
-.rd_addr(rdaddr),
-.rd_data(instruction_out),
-.data_in(shift_fsm_out),
-.wr_addr(wr_addr),
-.w_en(inst_rdy)
-);
+    imm_gen imm_gen_i (
+        .instr   (instr),
+        .imm_sel (imm_sel),
+        .imm_out (imm)
+    );
 
+    // ALU operand mux controls
+    logic                  op1_sel_pc;      // 1: use PC, 0: use rs1
+    logic                  op2_sel_imm;     // 1: use imm, 0: use rs2
+
+    logic [DATA_WIDTH-1:0] alu_op1;
+    logic [DATA_WIDTH-1:0] alu_op2;
+
+    // Operand1: PC vs rs1
+    mux #(.WIDTH(DATA_WIDTH)) alu_op1_mux_i (
+        .in1(pc_q),        // sel=1 -> PC
+        .in2(rs1_data),    // sel=0 -> rs1
+        .sel(op1_sel_pc),
+        .out(alu_op1)
+    );
+
+    // Operand2: imm vs rs2
+    mux #(.WIDTH(DATA_WIDTH)) alu_op2_mux_i (
+        .in1(imm),         // sel=1 -> imm
+        .in2(rs2_data),    // sel=0 -> rs2
+        .sel(op2_sel_imm),
+        .out(alu_op2)
+    );
+
+    //--------------------------------------------------------------------------
+    // EX: ALU and Branch Decision
+    //--------------------------------------------------------------------------
+
+    logic [3:0]            alu_ctrl;
+    logic [DATA_WIDTH-1:0] alu_result;
+
+    alu #(.OPERAND_WIDTH(DATA_WIDTH)) alu_i (
+        .operand1   (alu_op1),
+        .operand2   (alu_op2),
+        .alucontrol (alu_ctrl),
+        .alu_result (alu_result)
+    );
+
+    // For branches/jumps in this single-cycle design, branch_target is produced by ALU
+    // when operand1=PC and operand2=imm and alu_ctrl=ADD.
+    assign branch_target = alu_result;
+
+    // Comparator for BEQ condition (rs1 == rs2)
+    logic eq_rs1_rs2;
+
+    branch #(.DATA_WIDTH(DATA_WIDTH)) branch_cmp_i (
+        .rs_1        (rs1_data),
+        .rs_2        (rs2_data),
+        .branch_taken(eq_rs1_rs2)
+    );
+
+    //--------------------------------------------------------------------------
+    // MEM: Data Memory (store/load datapath)
+    //--------------------------------------------------------------------------
+
+    logic                  dmem_we;
+    logic [DATA_WIDTH-1:0] dmem_rdata;
+
+    data_memory #(.DATA_WIDTH(DATA_WIDTH), .DEPTH(DEPTH)) data_mem_i (
+        .clk     (clk),
+        .wr_en   (dmem_we),
+        .addr    (alu_result),    // byte address from ALU
+        .data_in (rs2_data),      // store data
+        .data_out(dmem_rdata)     // load data
+    );
+
+    //--------------------------------------------------------------------------
+    // WB: Write-back Mux (ALU vs MEM vs PC+4)
+    //--------------------------------------------------------------------------
+
+    logic [1:0] wb_sel;
+
+    mux_3_to_1 wb_mux_i (
+        .data_out_to_pc   (pc_plus_inc),  // PC+4 (link address)
+        .alu_to_mem_addr  (alu_result),   // ALU result
+        .data_out_to_mux  (dmem_rdata),   // memory read data
+        .sel              (wb_sel),
+        .data_out         (wb_data)
+    );
+
+    //--------------------------------------------------------------------------
+    // Control Unit: Decode instruction -> drive control signals
+    //--------------------------------------------------------------------------
+
+    control_unit cu_i (
+        .opcode            (instr[6:0]),
+        .funct_3           (instr[14:12]),
+        .funct_7           (instr[31:25]),
+        .zero              (eq_rs1_rs2),     // BEQ condition
+
+        .prf_wr_en         (rf_we),
+        .cu_imm_sel        (imm_sel),
+        .prf_pc_mux_ctrl   (op1_sel_pc),
+        .prf_imm_mux_ctrl  (op2_sel_imm),
+        .cu_alu_ctrl       (alu_ctrl),
+        .cu_mem_out_mux_sel(wb_sel),
+        .cu_data_mem_wr_en (dmem_we),
+        .cu_pc_add_sel     (pc_inc_sel),
+        .branch_taken      (branch_taken)
+    );
 
 endmodule

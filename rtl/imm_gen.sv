@@ -1,75 +1,58 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/21/2025 10:44:41 PM
-// Design Name: 
-// Module Name: imm_gen
-// Project Name: 
-//////////////////////////////////////////////////////////////////////////////////
 
-
+//------------------------------------------------------------------------------
+// Module: imm_gen
+// Description:
+//   RISC-V RV32I immediate generator. Extracts and sign/zero-extends the
+//   immediate field from a 32-bit instruction according to imm_sel.
+//
+// Assumptions:
+//   - instr is a valid RV32I instruction word.
+//   - imm_sel is provided by the control unit and selects the immediate format:
+//       IMM_I: I-type   (sign-extended 12-bit immediate)
+//       IMM_S: S-type   (sign-extended 12-bit store immediate)
+//       IMM_B: B-type   (sign-extended branch offset, LSB forced to 0)
+//       IMM_U: U-type   (upper immediate, lower 12 bits are 0)
+//       IMM_J: J-type   (sign-extended jump offset, LSB forced to 0)
+//
+// Notes:
+//   - Branch/jump immediates are instruction-aligned; therefore bit[0] is 0.
+//   - This block performs field extraction/extension only. Target address
+//     computation (PC + imm) is performed elsewhere.
+//------------------------------------------------------------------------------
 module imm_gen(
-    input logic [31:0] instr,      // Instructions from program memory
-    input logic [2:0] imm_sel,     // 000 = I-type, 001 = S-type ,010 = B-type, 011 = U-type, 100 = J-type of control unit 
-    output logic [31:0] imm_out    // output for ALU and PC
-    );
-    
-`include "defines.svh"             //define the imm instructions 
+    input  logic [31:0] instr,
+    input  logic [2:0]  imm_sel,
+    output logic [31:0] imm_out
+);
 
-always_comb begin 
-    unique case (imm_sel)
-        /*   I-type (ADDI)  original immediate 12 bits   instr[31:20]
-                        12 bits     5bits   3bits    5bits  7bits 
-                        31:20       19:15   14:12    11:7   6:0
-                        imm[31:20]  rs1     funct3   rd     opcode
-        */
-        IMM_I: begin //000 = I-type
-            imm_out = {{20{instr[31]}}, instr[31:20]}; //signed extension (repeat 20 times the MSB)
-        end
+`include "defines.svh"
 
+    always_comb begin
+        imm_out = '0; // default
 
-        /*   S-type     original immediate 12 bits   imm[11:5]  imm[4:0]
-                        7  bits   5bits   5bits    3bits    5bits     7bits 
-                        31:25     24:20   19:15    14:12    11:7      6:0 
-                        imm[11:5] rs2     rs1      funct3   imm[4:0]  opcode
-        */        
-		IMM_S: begin //001 = S-type
-            imm_out = { {20{instr[31]}},instr[31:25], instr[11:7] };//signed extension (repeat 20 times the MSB)
-        end
-        
-        /*   B-type     original immediate 12 bits + 1'b0   mm[12|10:5|4:1|11]
-                      1 bit   6bits     5bits   5bits    3bits    4bits     1bit     7bits 
-                      31      30:25     24:20   19:15    14:12    11:8      7        6:0 
-                      imm[12] imm[10:5] rs2     rs1      funct3   imm[4:1]  imm[11]  opcode
-        */  
-        IMM_B: begin  //010 = B-type
-             imm_out = { {20{instr[31]}}, {instr[7], instr[30:25], instr[11:8], 1'b0 } };
-        end
-        
-         /*   U-type     original immediate 20 bits   instr[31:12]
-                          20 bits       5bit     7bits 
-                          31:12         11:7     6:0 
-                          imm[31:12]    rd       opcode
-        */         
-        IMM_U: begin  // 011 = U-type
-            imm_out = {  instr[31:12], {12{1'b0}} };
-        end
-        
-        /*   J-type     original immediate 20 bits +1'b0  imm[20|10:1|11|19:12]
-                        1bit    10bits     1bit     8bits      5bits     7bits 
-                        31      30:21      20       19:12      11:7      6:0 
-                        imm[20] imm[10:1]  imm[11]  imm[19:12] rd        opcode
-        */   
-        IMM_J: begin // 100 = J-type
-            imm_out = { {12{instr[31]}}, {instr[19:12], instr[20], instr[30:21], 1'b0 } };
-        end
-        default: imm_out = '0;
-    endcase
-end
+        unique case (imm_sel)
+
+            // I-type immediate: imm[11:0] = instr[31:20], sign-extended to 32b
+            IMM_I: imm_out = {{20{instr[31]}}, instr[31:20]};
+
+            // S-type immediate: imm[11:5]=instr[31:25], imm[4:0]=instr[11:7], sign-extended
+            IMM_S: imm_out = {{20{instr[31]}}, instr[31:25], instr[11:7]};
+
+            // B-type immediate (branch offset):
+            // imm[12]=instr[31], imm[11]=instr[7], imm[10:5]=instr[30:25], imm[4:1]=instr[11:8], imm[0]=0
+            IMM_B: imm_out = {{19{instr[31]}}, instr[31], instr[7], instr[30:25], instr[11:8], 1'b0};
+
+            // U-type immediate: imm[31:12]=instr[31:12], lower 12 bits are zero
+            IMM_U: imm_out = {instr[31:12], 12'b0};
+
+            // J-type immediate (jump offset):
+            // imm[20]=instr[31], imm[19:12]=instr[19:12], imm[11]=instr[20], imm[10:1]=instr[30:21], imm[0]=0
+            IMM_J: imm_out = {{11{instr[31]}}, instr[31], instr[19:12], instr[20], instr[30:21], 1'b0};
+
+            default: imm_out = '0;
+        endcase
+    end
 
 endmodule
-
-
 

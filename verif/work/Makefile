@@ -5,7 +5,7 @@ verbosity=UVM_MEDIUM
 
 list: # target
 	echo # rtl > list.f
-	IF EXIST ../rtl/${src}_rtl.sv echo ..\rtl\${src}_rtl.sv >> list.f
+	IF EXIST ../rtl/${src}_rtl.sv echo ..\rtl\${src}.sv >> list.f
 	echo # verification >> list.f
 	echo ../verif/${src}.sv >> list.f
 	

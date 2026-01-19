@@ -1,0 +1,19 @@
+0.7
+2020.2
+Nov 14 2025
+12:36:23
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/adder.sv,1768762080,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/instruction_memory.sv,,adder,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/alu.sv,1768767822,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/branch.sv,/home/rodrigo-mata/Documents/git/microprocessor/rtl/defines.svh,alu,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/branch.sv,1768771227,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/data_memory.sv,,branch,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/control_unit.sv,1768772315,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/microprocessor_top.sv,/home/rodrigo-mata/Documents/git/microprocessor/rtl/defines.svh,control_unit,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/data_memory.sv,1768763984,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/mux_3_to_1.sv,,data_memory,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/defines.svh,1768774372,verilog,,,,,,,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/imm_gen.sv,1768771516,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/alu.sv,/home/rodrigo-mata/Documents/git/microprocessor/rtl/defines.svh,imm_gen,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/instruction_memory.sv,1768772496,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/physical_register_file.sv,,instruction_memory,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/microprocessor_top.sv,1768775371,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/verif/microprocessor_top_tb.sv,/home/rodrigo-mata/Documents/git/microprocessor/rtl/defines.svh,microprocessor_top,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/mux.sv,1768771627,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/program_counter.sv,,mux,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/mux_3_to_1.sv,1768770354,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/control_unit.sv,/home/rodrigo-mata/Documents/git/microprocessor/rtl/defines.svh,mux_3_to_1,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/physical_register_file.sv,1768772853,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/imm_gen.sv,,physical_register_file,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/plus_4_or_2_mux.sv,1768765601,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/adder.sv,,plus_4_or_2_mux,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/rtl/program_counter.sv,1768770974,systemVerilog,,/home/rodrigo-mata/Documents/git/microprocessor/rtl/plus_4_or_2_mux.sv,,program_counter,,uvm,,,,,,
+/home/rodrigo-mata/Documents/git/microprocessor/verif/microprocessor_top_tb.sv,1768776626,systemVerilog,,,,microprocessor_top_tb,,uvm,,,,,,

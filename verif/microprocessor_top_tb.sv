@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module riscv_32();
+module microprocessor_top_tb();
 
     bit clk;
     bit arst_n;
