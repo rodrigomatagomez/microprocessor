@@ -5,7 +5,6 @@ module microprocessor_top_tb();
     bit clk;
     bit arst_n;
 
-    initial clk = 0;
     always #5ns clk = !clk;
 
 
@@ -27,10 +26,10 @@ module microprocessor_top_tb();
         .arst_n(arst_n)
     );
 
-	initial begin
+	/*initial begin
 	  $shm_open("shm_db");
 	  $shm_probe("ASMTR");
 
-	end	
+	end	*/
 
 endmodule
