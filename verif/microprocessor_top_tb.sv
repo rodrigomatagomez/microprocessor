@@ -26,10 +26,10 @@ module microprocessor_top_tb();
         .arst_n(arst_n)
     );
 
-	/*initial begin
+	initial begin
 	  $shm_open("shm_db");
 	  $shm_probe("ASMTR");
 
-	end	*/
+	end	
 
 endmodule
