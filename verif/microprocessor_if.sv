@@ -8,22 +8,26 @@
 import riscv_enc_pkg::*;
 
 interface microprocessor_if (input logic clk, input logic arst_n);
-//------------------------------------------------------------------------------
-// Task: drive an ADDI instruction (I-type)
-// I-type layout:
-//	[31:20]	imm[11:0]
-//	[19:15]	rs1
-//	[14:12]	func3
-//	[11:7]	rd
-//	[6:0]	opcode
-//-----------------------------------------------------------------------------
-task automatic drive_addi(
-	logic [4:0]	rd,
-	logic [4:0]	rs1,
-	logic [11:0]	imm
-);	
-	@(posedge clk);
-	intruction <= {imm, rs1, FUNCT3_ADDI, rd, OPCODE_OPIMM};
-endtask
+    //------------------------------------------------------------------------------
+    // Task: drive an ADDI instruction (I-type)
+    // I-type layout:
+    //	[31:20]	imm[11:0]
+    //	[19:15]	rs1
+    //	[14:12]	func3
+    //	[11:7]	rd
+    //	[6:0]	opcode
+    //-----------------------------------------------------------------------------
+    instr_t instruction;
 
+    localparam logic [6:0] OPCODE_OPIMM = 7'b0010011; // op-imm
+    localparam logic [2:0] FUNCT3_ADDI = 3'b000; //addi 
+
+    task automatic drive_addi(
+        logic [4:0]    rd,
+        logic [4:0]   rs1,
+        logic [11:0]  imm
+        );
+        @(posedge clk);
+        instruction <= {imm, rs1, FUNCT3_ADDI, rd, OPCODE_OPIMM};
+    endtask
 endinterface 

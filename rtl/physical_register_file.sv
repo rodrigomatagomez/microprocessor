@@ -22,8 +22,8 @@
 //     until written (architecturally acceptable for RV32).
 //------------------------------------------------------------------------------
 module physical_register_file #(
-    parameter int DIR_WIDTH  = 5,   // 5 bits -> 32 registers
-    parameter int DATA_WIDTH = 32
+    parameter DIR_WIDTH  = 5,   // 5 bits -> 32 registers
+    parameter DATA_WIDTH = 32
 )(
     input  logic                  clk,
     input  logic                  arst_n,
@@ -45,10 +45,10 @@ module physical_register_file #(
     // - Active-low asynchronous reset initializes x0
     // - Writes to x0 are blocked to preserve architectural semantics
     //-------------------------------------------------------------------------
-    always_ff @(posedge clk or negedge arst_n) begin
+    always_ff @(posedge clk, negedge arst_n) begin
         if (!arst_n) begin
             prf[0] <= '0;  // x0 hard-wired to zero
-        end else if (write_en && (write_dir != '0)) begin
+        end else if (write_en == 1'b1 && (write_dir != 5'b00000)) begin
             prf[write_dir] <= write_data;
         end
     end

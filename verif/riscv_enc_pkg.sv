@@ -20,32 +20,25 @@
 //   - Actual opcode/funct3/funct7 values may be extended in this package
 //     as instruction coverage grows.
 //////////////////////////////////////////////////////////////////////////////////
-
+`default_nettype none
 package riscv_enc_pkg;
 
-  // ------------------------------------------------------------
-  // RISC-V RV32I instruction formats
-  // ------------------------------------------------------------
-  // These formats describe how the 32-bit instruction word
-  // is partitioned into opcode, registers, immediates, etc.
-  typedef enum logic [2:0] {
-    FMT_R = 3'd0,   // R-type: register-register ALU operations
-    FMT_I = 3'd1,   // I-type: ALU immediate, loads, JALR, system
-    FMT_S = 3'd2,   // S-type: store instructions
-    FMT_B = 3'd3,   // B-type: conditional branches
-    FMT_U = 3'd4,   // U-type: LUI / AUIPC
-    FMT_J = 3'd5    // J-type: JAL
-  } instr_format_e;
+    typedef enum logic [2:0] {
+        FMT_R = 3'd0,
+        FMT_I = 3'd1,
+        FMT_S = 3'd2,
+        FMT_B = 3'd3,
+        FMT_U = 3'd4,
+        FMT_J = 3'd5
+        } instr_format_e;
 
-  // ------------------------------------------------------------
-  // RV32 instruction word
-  // ------------------------------------------------------------
-  typedef logic [31:0] instr_t;
+        typedef logic [31:0] instr_t;
 
-  typedef struct packed {
-    instr_format_e fmt;   // Instruction format (R/I/S/B/U/J)
-    instr_t        word;  // Encoded 32-bit instruction
-  } instr_desc_t;
+        typedef struct packed {
+            instr_format_e fmt;
+            instr_t        word;
+            } instr_desc_t;
 
-endpackage
+        endpackage
+        `default_nettype wire
 
