@@ -30,4 +30,15 @@ interface microprocessor_if (input logic clk, input logic arst_n);
         @(posedge clk);
         instruction <= {imm, rs1, FUNCT3_ADDI, rd, OPCODE_OPIMM};
     endtask
+    //--------------------------------------------------------------------------
+    //Task: fill the prf to avoid X in results
+    // Fill x1..x31 with non-zero deterministic values using ADDI xN, x0, imm
+    // x0 is hardwired to 0 by ISA, so we avoid writing x0.
+    // ------------------------------------------------------------------------
+    task automatic init_prf();
+        for( int r = 1; r < 32; r++) begin 
+            drive_addi((r[4:0]), 5'd0, (r[11:0]));
+            //@(posedge clk);
+        end
+    endtask
 endinterface 

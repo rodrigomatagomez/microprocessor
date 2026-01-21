@@ -32,7 +32,8 @@ logic [11:0]imm;
 
     initial begin
         wait (arst_n == 1'b1);
-        repeat(NUM_TESTS) begin
+        micro.init_prf();
+        /*repeat(NUM_TESTS) begin
         //random ADDI 
         std::randomize (rd, imm) with {
             rd inside {[1:31]};
@@ -41,7 +42,7 @@ logic [11:0]imm;
         
         micro.drive_addi(rd, 5'd0, imm);
         @(posedge clk);
-        end
+        end*/
         $finish;
     end
 
