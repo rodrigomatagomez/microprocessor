@@ -29,6 +29,9 @@ set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_en}]}
 	} ]]
 set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.prf[0:31]}]}
+	} ]]
+set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_data[31:0]}]}
 	} ]]
 set id [waveform add -signals [subst  {
@@ -77,4 +80,4 @@ set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.branch_taken}]}
 	} ]]
 
-waveform xview limits 0 115ns
+waveform xview limits 0 115.087ns

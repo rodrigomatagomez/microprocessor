@@ -24,7 +24,7 @@ module microprocessor_top (
     input logic [31:0]  instruction    
 );
 
-`include "defines.svh"
+//`include "defines.svh"
 
     //--------------------------------------------------------------------------
     // IF: Program Counter and Instruction Fetch

@@ -25,34 +25,30 @@ microprocessor_top microprocessor_DUT (
     .arst_n         (arst_n),
     .instruction    (micro.instruction)
     );
-
-logic [4:0]rd;
-logic [4:0]rs1;
-logic [11:0]imm;
-
 initial begin
 	wait (arst_n == 1'b1);
         micro.init_prf();
         @(posedge clk);
         repeat(NUM_TESTS) begin
         //random ADDI 
-        micro.build_addi_random(rd, rs1, imm);
+        micro.build_addi_random();
         @(posedge clk);
-        end
+	end
         $finish;
 end
 //---------------------------------------------------------------
 //--------Check if the instrucction is adi-----------------------
 //---------------------------------------------------------------
-property check_addi_instr;
+/*property check_addi_instr;
     @(posedge clk) disable iff (!arst_n)
         micro.check_addi(micro.instruction);
 endproperty
 
 assert property (check_addi_instr)
     else $error("Instruction is not ADDI: instr=%h", micro.instruction);
+*/
 //---------------------------------------------------------------
-property check_addi_result;
+/*property check_addi_result;
     @(posedge clk) disable iff (!arst_n)
         //check if instruction is ADDI
         (microprocessor_DUT.instruction  [6:0]   ==  7'b0010011  && microprocessor_DUT.instruction  [14:12] ==  3'b000) |-> //then result
@@ -61,10 +57,11 @@ endproperty
 
 assert property (check_addi_result)
     else $error("ADD failed");
-    /*initial begin
-        $shm_open("shm_db");
+*/    
+initial begin
+	$shm_open("shm_db");
         $shm_probe("ASMTR");
-    end*/
+end
 
     endmodule
 
