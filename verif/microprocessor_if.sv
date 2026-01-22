@@ -8,6 +8,9 @@
 import riscv_enc_pkg::*;
 
 interface microprocessor_if (input logic clk, input logic arst_n);
+    logic           wb_we;
+    logic [4:0]     wb_rd;
+    logic [31:0]    wb_wdata;
     //------------------------------------------------------------------------------
     // Task: drive an ADDI instruction (I-type)
     // I-type layout:
@@ -41,4 +44,10 @@ interface microprocessor_if (input logic clk, input logic arst_n);
             //@(posedge clk);
         end
     endtask
+    //--------------------------------------------------------------------------------
+    //function: check if the instrucction is Type-I (addi)
+    //-------------------------------------------------------------------------------
+    function automatic check_addi (logic [31:0] addi_instr);
+        return (addi_instr[6:0] == OPCODE_OPIMM) && (addi_instr[14:12] == FUNCT3_ADDI);
+    endfunction 
 endinterface 

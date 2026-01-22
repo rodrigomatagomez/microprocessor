@@ -21,9 +21,12 @@ end
 
 //top
 microprocessor_top microprocessor_DUT (
-    .clk         (clk),
-    .arst_n      (arst_n),
-    .instruction (micro.instruction)
+    .clk            (clk),
+    .arst_n         (arst_n),
+    .instruction    (micro.instruction),
+    .wb_we          (micro.wb_we),
+    .wb_rd          (micro.wb_rd),
+    .wb_wdata       (micro.wb_wdata)
     );
 
 logic [4:0]rd;
@@ -33,18 +36,37 @@ logic [11:0]imm;
     initial begin
         wait (arst_n == 1'b1);
         micro.init_prf();
-        /*repeat(NUM_TESTS) begin
+        repeat(NUM_TESTS) begin
         //random ADDI 
-        std::randomize (rd, imm) with {
+        std::randomize (rd, rs1, imm) with {
             rd inside {[1:31]};
+            rs1 inside {[0:31]};
             imm inside {[0:4095]};
         };
         
-        micro.drive_addi(rd, 5'd0, imm);
+        micro.drive_addi(rd, rs1, imm);
         @(posedge clk);
-        end*/
+        end
         $finish;
     end
+    
+//---------------------------------------------------------------
+// -------------------ASSERTIONS---------------------------------
+//---------------------------------------------------------------
+
+//---------------------------------------------------------------
+//--------Check if the instrucction is adi-----------------------
+//---------------------------------------------------------------
+property check_addi_instr;
+    @(posedge clk) disable iff (!arst_n)
+        micro.check_addi(micro.instruction);
+endproperty
+
+assert property (check_addi_instr)
+    else $error("Instruction is not ADDI: instr=%h", micro.instruction);
+//---------------------------------------------------------------
+
+
 
     /*initial begin
         $shm_open("shm_db");
