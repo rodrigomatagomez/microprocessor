@@ -21,12 +21,7 @@
 module microprocessor_top (
     input logic         clk,
     input logic         arst_n,
-    input logic [31:0]  instruction,
-    
-    input logic         wb_we,
-    input logic [4:0]   wb_rd,
-    input logic [31:0]  wb_wdata
-    
+    input logic [31:0]  instruction    
 );
 
 `include "defines.svh"

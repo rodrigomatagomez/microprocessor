@@ -4,7 +4,7 @@ import riscv_enc_pkg::*;
 
 module microprocessor_top_tb();
 
-parameter NUM_TESTS = 100;
+parameter NUM_TESTS = 1000;
 bit clk;
 bit arst_n;
 
@@ -23,10 +23,7 @@ end
 microprocessor_top microprocessor_DUT (
     .clk            (clk),
     .arst_n         (arst_n),
-    .instruction    (micro.instruction),
-    .wb_we          (micro.wb_we),
-    .wb_rd          (micro.wb_rd),
-    .wb_wdata       (micro.wb_wdata)
+    .instruction    (micro.instruction)
     );
 
 logic [4:0]rd;
@@ -36,6 +33,7 @@ logic [11:0]imm;
     initial begin
         wait (arst_n == 1'b1);
         micro.init_prf();
+        @(posedge clk);
         repeat(NUM_TESTS) begin
         //random ADDI 
         std::randomize (rd, rs1, imm) with {
@@ -65,9 +63,15 @@ endproperty
 assert property (check_addi_instr)
     else $error("Instruction is not ADDI: instr=%h", micro.instruction);
 //---------------------------------------------------------------
+property check_addi_result;
+    @(posedge clk) disable iff (!arst_n)
+        //check if instruction is ADDI
+        (microprocessor_DUT.instruction  [6:0]   ==  7'b0010011  && microprocessor_DUT.instruction  [14:12] ==  3'b000) |-> //then result
+        (microprocessor_DUT.prf_i.write_data == microprocessor_DUT.alu_i.alu_result);
+endproperty
 
-
-
+assert property (check_addi_result)
+    else $error("ADD failed");
     /*initial begin
         $shm_open("shm_db");
         $shm_probe("ASMTR");
