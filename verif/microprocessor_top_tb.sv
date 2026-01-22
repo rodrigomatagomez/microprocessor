@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-import riscv_enc_pkg::*;
+//import riscv_enc_pkg::*;
 
 module microprocessor_top_tb();
 
@@ -30,28 +30,17 @@ logic [4:0]rd;
 logic [4:0]rs1;
 logic [11:0]imm;
 
-    initial begin
-        wait (arst_n == 1'b1);
+initial begin
+	wait (arst_n == 1'b1);
         micro.init_prf();
         @(posedge clk);
         repeat(NUM_TESTS) begin
         //random ADDI 
-        std::randomize (rd, rs1, imm) with {
-            rd inside {[1:31]};
-            rs1 inside {[0:31]};
-            imm inside {[0:4095]};
-        };
-        
-        micro.drive_addi(rd, rs1, imm);
+        micro.build_addi_random(rd, rs1, imm);
         @(posedge clk);
         end
         $finish;
-    end
-    
-//---------------------------------------------------------------
-// -------------------ASSERTIONS---------------------------------
-//---------------------------------------------------------------
-
+end
 //---------------------------------------------------------------
 //--------Check if the instrucction is adi-----------------------
 //---------------------------------------------------------------

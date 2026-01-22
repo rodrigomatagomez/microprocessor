@@ -13,7 +13,21 @@ parameter ADDI_OPCODE   =   7'b0010011;
 parameter FUNCT3_ADDI   =   3'b000; 
 
 //Declaration of signals used by testbench only (can only be accessed by interface tasks/functions)
-logic [DATA_WIDTH-1:0] instruction; 
+
+//-------INSTRUCTIONS---------------
+logic [DATA_WIDTH-1:0]  instruction; 
+logic [11:0]            imm_addi; 
+logic [4:0]             rs1;
+logic [4:0]             rs2;
+logic [4:0]             rd;
+//--------PRF-----------------------
+logic prf_we;
+
+
+//This modport is to connect with the logic 
+/*modport microprocessor_modport(
+	input instruction
+);*/
 
 //------------------------------------------------------------------------------
 // Task: drive an ADDI instruction (I-type)
@@ -24,9 +38,14 @@ logic [DATA_WIDTH-1:0] instruction;
 //	[11:7]	rd
 //	[6:0]	opcode
 //-----------------------------------------------------------------------------
-task automatic build_addi();
+task automatic build_addi_random();
     @(posedge clk);
-    instruction <= {imm, rs1, FUNCT3_ADDI, rd, OPCODE_OPIMM};
+    std::randomize (rd, rs1, imm_addi) with {
+      rd  inside  {[1:31]};
+      rs1 inside  {[0:31]};
+      imm_addi  inside  {[0:4095]};
+    };
+    instruction <= {imm_addi, rs1, FUNCT3_ADDI, rd, OPCODE_OPIMM};
 endtask
 //--------------------------------------------------------------------------
 //Task: fill the prf to avoid X in results
@@ -34,10 +53,11 @@ endtask
 // x0 is hardwired to 0 by ISA, so we avoid writing x0.
 // ------------------------------------------------------------------------
 task automatic init_prf();
-    for( int r = 1; r < 32; r++) begin 
-        @(posedge clk);
-        drive_addi((r[4:0]), 5'd0, (r[11:0]));
-    end
+	prf_we = 1'b1;
+	for( int r = 1; r < 32; r++) begin 
+        	@(posedge clk);
+       		instruction <= {12'd0, 5'd0, FUNCT3_ADDI, r, OPCODE_OPIMM};
+	end
 endtask
     //--------------------------------------------------------------------------------
     //function: check if the instrucction is Type-I (addi)
