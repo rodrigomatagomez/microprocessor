@@ -52,7 +52,7 @@ endfunction
 task automatic init_prf();
 	for( int r = 1; r < 32; r++) begin
 	       @(posedge clk);	
-       		instruction <= {12'd0, 5'd0, FUNCT3_ADDI, r, OPCODE_OPIMM};
+       		instruction <= {12'd0, 5'd0, FUNCT3_ADDI, rd, OPCODE_OPIMM};
 	end
 endtask
 /*
