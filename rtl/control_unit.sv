@@ -42,7 +42,7 @@ module control_unit(
     output logic        branch_taken         // PC redirect request (branch/jump)
 );
 
-//`include "defines.svh"
+`include "defines.svh"
 
     always_comb begin
         //-------------------------------------------------------------------------
@@ -134,10 +134,43 @@ module control_unit(
                 cu_alu_ctrl        = ALU_ADD;
                 branch_taken       = 1'b1;                // unconditional redirect
             end
-
-            // Default: unsupported opcode -> disable write-back to avoid corrupting state
+            // load-word 
+            OPCODE_L_TYPE: begin
+                cu_mem_out_mux_sel = DATA_OUT_TO_PRF;
+                unique case (funct_3)
+                    LB:     ;
+                    LH:     ;
+                    LW:     ;
+                    LBU:    ;
+                    LHU:    ;
+                    default: prf_wr_en = 1'b1;
+                endcase  
+            end
+            // write-word
+            OPCODE_S_TYPE: begin 
+                prf_wr_en = 1'b0;
+                cu_mem_out_mux_sel = ALU_TO_PRF;
+                cu_imm_sel         = IMM_S;
+                cu_data_mem_wr_en  = 1'b1;
+                unique case (funct_3)
+                    SB:     ;
+                    SH:     ;
+                    SW:     ;
+                    default: prf_wr_en = 1'b0;
+                endcase 
+            end
+            // LUI operation
+            OPCODE_U_LUI: begin
+                cu_imm_sel         = IMM_U;               // Extend the width of imm
+            end
+            // LUI operation
+            OPCODE_U_AUIPC: begin
+                prf_pc_mux_ctrl    = 1'b1;                // operand1 = PC
+                cu_imm_sel         = IMM_U;               // Extend the width of imm
+            end
+            // Default: NOP
             default: begin
-                prf_wr_en    = 1'b0;
+                prf_wr_en    = 1'b1;
                 cu_alu_ctrl  = ALU_ADD;
                 branch_taken = 1'b0;
             end

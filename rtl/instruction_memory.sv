@@ -16,8 +16,9 @@
 //     enforced via assertions in a later verification stage.
 //------------------------------------------------------------------------------
 module instruction_memory #(
-    parameter int DATA_WIDTH = 32,
-    parameter int DEPTH      = 1024
+    parameter DATA_WIDTH = 32,
+    parameter DEPTH      = 1024,
+    parameter string MEMFILE = "type_J_and_L.mem" 
 )(
     input  logic [DATA_WIDTH-1:0] pc,
     output logic [DATA_WIDTH-1:0] instr
@@ -34,14 +35,11 @@ module instruction_memory #(
     assign pc_word_idx = pc[ADDR_W+1:2];
 
     // Initialize instruction memory: default NOP, then overwrite with program.mem
-    integer i;
     initial begin
-        int fd;
-    
-        for (i = 0; i < DEPTH; i++) begin
+        for (int i = 0; i < DEPTH; i++) begin
             mem[i] = 32'h00000013; // NOP
         end
-        $readmemh("program.mem", mem);
+        $readmemh(MEMFILE, mem);
     end
     // Combinational read (single-cycle IMEM)
     assign instr = mem[pc_word_idx];

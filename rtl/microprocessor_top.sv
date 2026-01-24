@@ -20,11 +20,11 @@
 //------------------------------------------------------------------------------
 module microprocessor_top (
     input logic         clk,
-    input logic         arst_n,
-    input logic [31:0]  instruction    
+    input logic         arst_n
+    //input logic [31:0]  instruction    
 );
 
-//`include "defines.svh"
+`include "defines.svh"
 
     //--------------------------------------------------------------------------
     // IF: Program Counter and Instruction Fetch
@@ -93,9 +93,9 @@ module microprocessor_top (
         .clk       (clk),
         .arst_n    (arst_n),
         .write_en  (rf_we),
-        .read_dir1 (instruction[19:15]),   // rs1
-        .read_dir2 (instruction[24:20]),   // rs2
-        .write_dir (instruction[11:7]),    // rd
+        .read_dir1 (instr[19:15]),   // rs1
+        .read_dir2 (instr[24:20]),   // rs2
+        .write_dir (instr[11:7]),    // rd
         .write_data(wb_data),
         .read_data1(rs1_data),
         .read_data2(rs2_data)
@@ -109,7 +109,7 @@ module microprocessor_top (
     logic [DATA_WIDTH-1:0] imm;
 
     imm_gen imm_gen_i (
-        .instr   (instruction),
+        .instr   (instr),
         .imm_sel (imm_sel),
         .imm_out (imm)
     );
@@ -198,9 +198,9 @@ module microprocessor_top (
     //--------------------------------------------------------------------------
 
     control_unit cu_i (
-        .opcode            (instruction[6:0]),
-        .funct_3           (instruction[14:12]),
-        .funct_7           (instruction[31:25]),
+        .opcode            (instr[6:0]),
+        .funct_3           (instr[14:12]),
+        .funct_7           (instr[31:25]),
         .zero              (eq_rs1_rs2),     // BEQ condition
 
         .prf_wr_en         (rf_we),

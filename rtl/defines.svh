@@ -6,7 +6,7 @@ parameter ADDR_WIDTH = 10;      // Ancho de dirección del PC (El PC maneja dire
 parameter BYTE_WIDTH = 8;      // Ancho de cajón de la memoria (1 Byte)
 parameter DEPTH  = 1024;      // Numero de renglones de memoria
 ///////////////////TYPE_R_INSTRUCTIONS////////////////////// 
-localparam OPCODE_R_TYPE = 7'b0110011;	//Type R-Instruction  ---51
+localparam OPCODE_R_TYPE = 7'b011_0011;	//Type R-Instruction  ---
 //TYPES OF OPERATIONS
 localparam ADD   = 3'b000;
 localparam SLL   = 3'b001;
@@ -18,8 +18,9 @@ localparam OR_   = 3'b110;
 localparam AND_  = 3'b111;
 localparam SRA   = 3'b101;
 localparam SUB   = 3'b000;
+////////////////////////////////////////////////////////////
 ///////////////////TYPE_I_INSTRUCTIONS////////////////////// 
-localparam OPCODE_I_TYPE = 7'b0010011;	//Type I-Instruction ----19
+localparam OPCODE_I_TYPE = 7'b001_0011;	//Type I-Instruction
 //TYPES OF OPERATION
 localparam ADDI  = 3'b000; //rd = rs1 + imm
 localparam SLTI  = 3'b010; //rd = (rs1 < imm) signed
@@ -29,14 +30,32 @@ localparam ORI   = 3'b110; //rd = rs1 OR imm
 localparam ANDI  = 3'b111; //rd = rs1 AND imm`
 ////////////////////////////////////////////////////////////
 ///////////////////TYPE_B_INSTRUCTIONS////////////////////// 
-localparam OPCODE_B_TYPE = 7'b1100011;	//Type B-Instruction  ----99
+localparam OPCODE_B_TYPE = 7'b110_0011;	//Type B-Instruction  
 //TYPES OF OPERATION
 localparam BEQ = 3'b000;
+////////////////////////////////////////////////////////////
 ///////////////////TYPE_I_INSTRUCTIONS//////////////////////
-localparam OPCODE_J_TYPE = 7'b1101111;	//Type J-Instruction ----111
+localparam OPCODE_J_TYPE = 7'b110_1111;	//Type J-Instruction
+////////////////////////////////////////////////////////////
+///////////////////TYPE_L_INSTRUCTIONS//////////////////////
+localparam OPCODE_L_TYPE = 7'b000_0011;	//Type J-Instruction
 //TYPES OF OPERATION
-//TODO define thhe operations
-
+localparam LB   = 3'b000;
+localparam LH   = 3'b001;
+localparam LW   = 3'b010;
+localparam LBU  = 3'b100;
+localparam LHU  = 3'b101;
+////////////////////////////////////////////////////////////
+///////////////////TYPE_S_INSTRUCTIONS//////////////////////
+localparam OPCODE_S_TYPE = 7'b010_0011;	//Type J-Instruction
+//TYPES OF OPERATION
+localparam SB   = 3'b000;
+localparam SH   = 3'b001;
+localparam SW   = 3'b010;
+////////////////////////////////////////////////////////////
+///////////////////TYPE_U_INSTRUCTIONS//////////////////////
+localparam OPCODE_U_LUI = 7'b011_0111;	//Type J-Instruction
+localparam OPCODE_U_AUIPC = 7'b001_0111;	//Type J-Instruction
 //Define the intructions for ALU
 localparam ALU_ADD =  4'b0000;	//ALU add operation
 localparam ALU_SUB =  4'b0001;	//ALU sub operation

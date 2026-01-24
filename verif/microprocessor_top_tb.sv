@@ -1,67 +1,103 @@
 `timescale 1ns / 1ps
+//------------------------------------------------------------------------------
+// Testbench: microprocessor_top_tb
+// Description:
+//   Simple randomized ADDI stimulus via microprocessor_if tasks.
+//
+// Notes:
+//   - Assumes microprocessor_if provides:
+//       * task init_prf();
+//       * task build_addi_random();
+//   - Instruction is driven through the interface into the DUT.
+//------------------------------------------------------------------------------
 
-//import riscv_enc_pkg::*;
+module microprocessor_top_tb;
 
-module microprocessor_top_tb();
+  // ---------------------------------------------------------------------------
+  // Params
+  // ---------------------------------------------------------------------------
+  parameter MAX_CYCLES = 10_000;
+  parameter OPCODE_JAL = 7'b110_1111;
+  // ---------------------------------------------------------------------------
+  // Signals
+  // ---------------------------------------------------------------------------
+  bit clk;
+  bit arst_n;
 
-parameter NUM_TESTS = 1000;
-bit clk;
-bit arst_n;
+  // ---------------------------------------------------------------------------
+  // Interface
+  // ---------------------------------------------------------------------------
+  microprocessor_if micro (
+    .clk    (clk),
+    .arst_n (arst_n)
+  );
+  // ---------------------------------------------------------------------------
+  
+  always begin
+    #5ns clk = ~clk; //Clock generation 
+  end
 
-//interface
-microprocessor_if micro(.clk(clk), .arst_n(arst_n));
-
-always #5 clk = !clk;
-
-initial begin
-    arst_n = 1'b0;
-    #20;
+  initial begin
+    arst_n = 1'b0; //Reset 
+    #20ns;
     arst_n = 1'b1;
-end
+  end
 
-//top
-microprocessor_top microprocessor_DUT (
-    .clk            (clk),
-    .arst_n         (arst_n),
-    .instruction    (micro.instruction)
-    );
-initial begin
-	wait (arst_n == 1'b1);
-        micro.init_prf();
-        @(posedge clk);
-        repeat(NUM_TESTS) begin
-        //random ADDI 
-        micro.build_addi_random();
-        @(posedge clk);
-	end
+  // ---------------------------------------------------------------------------
+  // DUT
+  // ---------------------------------------------------------------------------
+  microprocessor_top microprocessor_DUT (
+    .clk         (clk),
+    .arst_n      (arst_n)
+  );
+
+  // ---------------------------------------------------------------------------
+  // Main stimulus
+  // ---------------------------------------------------------------------------
+  initial begin
+    wait (arst_n == 1'b1);
+    repeat (MAX_CYCLES) begin
+    @(posedge clk);
+    end
+    $finish;
+  end
+  //----------------------------------------------------------------------------
+  // Assertions 
+  // ---------------------------------------------------------------------------
+    
+    //-----------------Program_counter---------------------------------------------
+    assert property (@(posedge clk) disable iff (!arst_n)
+        microprocessor_DUT.pc_i.pc_out[1:0] == 2'b00 //Check if PC is ALWAYS aligned 
+        ) else begin
+            $error("PC misaligned");
+            $finish;
+        end;
+    assert property ( @(posedge clk) disable iff (!arst_n)
+        (microprocessor_DUT.cu_i.opcode == OPCODE_JAL) |-> ((microprocessor_DUT.pc_i.pc_in) == (microprocessor_DUT.alu_i.alu_result)) //Check when branch taken the next instruction is PC + imm
+        ) else begin 
+            $error("Wrong direction");
+            $finish;
+        end;
+    //--------------PRF---------------------------------------------------------
+    assert property ( @(posedge clk) disable iff (!arst_n)
+        microprocessor_DUT.prf_i.prf[0] == 32'd0    //Check if prf[0] is ALWAYS zero 
+        ) else begin 
+        $fatal("prf has to be always zero");
         $finish;
-end
-//---------------------------------------------------------------
-//--------Check if the instrucction is adi-----------------------
-//---------------------------------------------------------------
-/*property check_addi_instr;
-    @(posedge clk) disable iff (!arst_n)
-        micro.check_addi(micro.instruction);
-endproperty
-
-assert property (check_addi_instr)
-    else $error("Instruction is not ADDI: instr=%h", micro.instruction);
-*/
-//---------------------------------------------------------------
-/*property check_addi_result;
-    @(posedge clk) disable iff (!arst_n)
-        //check if instruction is ADDI
-        (microprocessor_DUT.instruction  [6:0]   ==  7'b0010011  && microprocessor_DUT.instruction  [14:12] ==  3'b000) |-> //then result
-        (microprocessor_DUT.prf_i.write_data == microprocessor_DUT.alu_i.alu_result);
-endproperty
-
-assert property (check_addi_result)
-    else $error("ADD failed");
-*/    
-initial begin
-	$shm_open("shm_db");
-        $shm_probe("ASMTR");
-end
-
-    endmodule
+    end;
+    assert property ( @(posedge clk) disable iff (!arst_n)
+        ((microprocessor_DUT.cu_i.prf_wr_en == 1'b1) && (microprocessor_DUT.instr[11:7] == 5'd0)) |-> (microprocessor_DUT.prf_i.prf[0] == 32'd0)    //Even if the instruction works with x0 is has to remain in zero
+        ) else begin 
+            $fatal("The instruction overwrited prf[0]");
+            $finish;
+        end;  
+  // ---------------------------------------------------------------------------
+  // Waves (Xcelium/SimVision SHM)
+  // ---------------------------------------------------------------------------
+  /*initial begin
+    $shm_open("shm_db");
+    $shm_probe("ASMTR");
+  end
+  */
+endmodule
 
