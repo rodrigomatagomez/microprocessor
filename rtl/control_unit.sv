@@ -33,7 +33,7 @@ module control_unit(
     input  logic        zero,               // 1 when rs1 == rs2 (BEQ condition)
     output logic        prf_wr_en,           // register file write enable
     output logic [2:0]  cu_imm_sel,          // immediate format select (imm_gen)
-    output logic        prf_pc_mux_ctrl,     // ALU operand1 select (rs1 vs PC)
+    output logic [1:0]  prf_pc_mux_ctrl,     // ALU operand1 select (rs1 vs PC)
     output logic        prf_imm_mux_ctrl,    // ALU operand2 select (rs2 vs imm)
     output logic [3:0]  cu_alu_ctrl,         // ALU operation select
     output logic [1:0]  cu_mem_out_mux_sel,  // write-back mux select (to PRF)
@@ -55,7 +55,7 @@ module control_unit(
         prf_wr_en          = 1'b1;
         cu_data_mem_wr_en  = 1'b0;
         cu_imm_sel         = IMM_I;
-        prf_pc_mux_ctrl    = 1'b0;        // operand1 = rs1
+        prf_pc_mux_ctrl    = 2'b10;        // operand1 = rs1
         prf_imm_mux_ctrl   = 1'b1;        // operand2 = imm
         cu_pc_add_sel      = 1'b0;        // +4 in RV32; +2 reserved for future compressed support
         cu_mem_out_mux_sel = ALU_TO_PRF;  // write-back = ALU result
@@ -81,16 +81,22 @@ module control_unit(
             OPCODE_B_TYPE: begin
                 prf_wr_en       = 1'b0;   // branches do not write rd
                 cu_imm_sel      = IMM_B;  // branch offset immediate
-                prf_pc_mux_ctrl = 1'b1;   // operand1 = rs1 (as defined by your datapath for target calc)
-
+                prf_pc_mux_ctrl = 2'b10;   // operand1 = rs1 (as defined by your datapath for target calc)
+                cu_alu_ctrl   = ALU_ADD; // used for target computation elsewhere (PC + imm path)
+                branch_taken  = zero;    // redirect request when condition is true
                 unique case (funct_3)
                     // BEQ: take branch when rs1 == rs2 (zero=1)
-                    BEQ: begin
-                        cu_alu_ctrl   = ALU_ADD; // used for target computation elsewhere (PC + imm path)
-                        branch_taken  = zero;    // redirect request when condition is true
-                    end
-
-                    // TODO: Add other branch types (BNE/BLT/BGE/BLTU/BGEU)
+                    BEQ: ;
+                    // BNE: take branch when rs1 != rs2 (zero=1)
+                    BNE: ;
+                    // BLT: take branch when rs1 < rs2 (zero=1)
+                    BLT: ;
+                    // BGE: take branch when rs1 >= rs2 (zero=1)
+                    BGE: ;
+                    // BLTU: take branch when rs1 < rs2 (zero=1)
+                    BLTU: ;
+                    // BGEU: take branch when rs1 >= rs2 (zero=1)
+                    BGEU: ; 
                     default: begin
                         cu_alu_ctrl  = ALU_ADD;
                         branch_taken = 1'b0;
@@ -127,13 +133,13 @@ module control_unit(
             end
 
             // JAL: rd <- PC+4, PC <- PC + imm (unconditional redirect)
-            OPCODE_J_TYPE: begin
+            OPCODE_JAL_TYPE: begin
                 cu_imm_sel         = IMM_J;               // jump offset immediate
-                prf_pc_mux_ctrl    = 1'b1;                // operand1 = PC (for target calc path)
+                prf_pc_mux_ctrl    = 2'b01;                // operand1 = PC (for target calc path)
                 cu_mem_out_mux_sel = INSTRUCTION_TO_PRF;  // write-back selects PC+4 (per your datapath naming)
                 cu_alu_ctrl        = ALU_ADD;
-                branch_taken       = 1'b1;                // unconditional redirect
-            end
+                branch_taken       = 1'b1;                // unconditional redirect  
+            end 
             // load-word 
             OPCODE_L_TYPE: begin
                 cu_mem_out_mux_sel = DATA_OUT_TO_PRF;
@@ -161,16 +167,17 @@ module control_unit(
             end
             // LUI operation
             OPCODE_U_LUI: begin
+                prf_pc_mux_ctrl    = 2'b00;                // operand1 = PC
                 cu_imm_sel         = IMM_U;               // Extend the width of imm
             end
-            // LUI operation
+            // AUIPC operation
             OPCODE_U_AUIPC: begin
-                prf_pc_mux_ctrl    = 1'b1;                // operand1 = PC
+                prf_pc_mux_ctrl    = 2'b01;                // operand1 = PC
                 cu_imm_sel         = IMM_U;               // Extend the width of imm
             end
             // Default: NOP
             default: begin
-                prf_wr_en    = 1'b1;
+                prf_wr_en    = 1'b0;
                 cu_alu_ctrl  = ALU_ADD;
                 branch_taken = 1'b0;
             end

@@ -16,12 +16,44 @@
 //     is handled elsewhere.
 //------------------------------------------------------------------------------
 
-module branch #(parameter DATA_WIDTH = 32)(
-    input logic [DATA_WIDTH - 1: 0]	rs_1,
-    input logic [DATA_WIDTH - 1: 0]	rs_2,
-    output logic			branch_taken
+module branch #(parameter DATA_WIDTH_BRANCH = 32)(
+    input logic [DATA_WIDTH_BRANCH - 1: 0]	rs_1,
+    input logic [DATA_WIDTH_BRANCH - 1: 0]	rs_2,
+    input logic [6:0]               opcode,
+    input logic [2:0]               funct_3,        
+    output logic			        branch_taken
     );
-    
-    assign branch_taken = (rs_1 == rs_2);
-    
+
+`include "defines.svh"
+
+    always_comb begin 
+    branch_taken = 1'b0;
+        if (opcode == OPCODE_B_TYPE) begin 
+            unique case (funct_3)
+                BEQ: begin 
+                    branch_taken = (rs_1 == rs_2);
+                end
+                BNE: begin 
+                    branch_taken = (rs_1 != rs_2);
+                end
+                BLT: begin 
+                    branch_taken = ($signed(rs_1) < $signed(rs_2));
+                end
+                BGE: begin 
+                    branch_taken = ($signed(rs_1) >= $signed(rs_2));
+                end
+                BLTU: begin 
+                    branch_taken = (rs_1 < rs_2);
+                end
+                BGEU: begin 
+                    branch_taken = (rs_1 >= rs_2);
+                end
+                default: begin 
+                    branch_taken = 1'b0;
+                end
+            endcase
+        end else begin
+            branch_taken = 1'b0; 
+        end
+    end   
 endmodule

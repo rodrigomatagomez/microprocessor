@@ -115,18 +115,19 @@ module microprocessor_top (
     );
 
     // ALU operand mux controls
-    logic                  op1_sel_pc;      // 1: use PC, 0: use rs1
-    logic                  op2_sel_imm;     // 1: use imm, 0: use rs2
+    logic [1:0]             op1_sel_pc;     // 00: use zero as operand 1, 01: use PC as operand 1, 10: use rs1 as operand 1
+    logic                   op2_sel_imm;    // 1: use imm, 0: use rs2 as operand 2
 
-    logic [DATA_WIDTH-1:0] alu_op1;
-    logic [DATA_WIDTH-1:0] alu_op2;
-
+    logic [DATA_WIDTH-1:0] alu_op1;               // ALU operand 1
+    logic [DATA_WIDTH-1:0] alu_op2;               // ALU operand 2
+    logic [DATA_WIDTH-1:0] zero_operand = 32'd0;  // Zero operand for LUI operation 
     // Operand1: PC vs rs1
-    mux #(.WIDTH(DATA_WIDTH)) alu_op1_mux_i (
-        .in1(pc_q),        // sel=1 -> PC
-        .in2(rs1_data),    // sel=0 -> rs1
-        .sel(op1_sel_pc),
-        .out(alu_op1)
+    mux_operand_1 alu_op1_mux_i (
+    .in1(zero_operand),   // Zero operand as operand 1
+    .in2(pc_q),           // PC as operand 1
+    .in3(rs1_data),       // rs1 as operand 1
+    .sel(op1_sel_pc),     // 00: use zero as operand 1, 01: use PC as operand 1, 10: use rs1 as operand 1
+    .data_out(alu_op1)    // data_out as operand_1
     );
 
     // Operand2: imm vs rs2
@@ -155,13 +156,15 @@ module microprocessor_top (
     // when operand1=PC and operand2=imm and alu_ctrl=ADD.
     assign branch_target = alu_result;
 
-    // Comparator for BEQ condition (rs1 == rs2)
-    logic eq_rs1_rs2;
+    // Comparator for TYPE-B conditions 
+    logic b_condition_rs1_rs2;
 
-    branch #(.DATA_WIDTH(DATA_WIDTH)) branch_cmp_i (
-        .rs_1        (rs1_data),
-        .rs_2        (rs2_data),
-        .branch_taken(eq_rs1_rs2)
+    branch #(.DATA_WIDTH_BRANCH(DATA_WIDTH)) branch_cmp_i (
+        .rs_1           (rs1_data),
+        .rs_2           (rs2_data),
+        .opcode         (instr[6:0]),
+        .funct_3        (instr[14:12]),
+        .branch_taken   (b_condition_rs1_rs2)
     );
 
     //--------------------------------------------------------------------------
@@ -201,7 +204,7 @@ module microprocessor_top (
         .opcode            (instr[6:0]),
         .funct_3           (instr[14:12]),
         .funct_7           (instr[31:25]),
-        .zero              (eq_rs1_rs2),     // BEQ condition
+        .zero              (b_condition_rs1_rs2),     // B condition
 
         .prf_wr_en         (rf_we),
         .cu_imm_sel        (imm_sel),

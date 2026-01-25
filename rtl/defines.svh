@@ -33,9 +33,14 @@ localparam ANDI  = 3'b111; //rd = rs1 AND imm`
 localparam OPCODE_B_TYPE = 7'b110_0011;	//Type B-Instruction  
 //TYPES OF OPERATION
 localparam BEQ = 3'b000;
+localparam BNE = 3'b001;
+localparam BLT = 3'b100;
+localparam BGE = 3'b101;
+localparam BLTU = 3'b110;
+localparam BGEU = 3'b111;
 ////////////////////////////////////////////////////////////
 ///////////////////TYPE_I_INSTRUCTIONS//////////////////////
-localparam OPCODE_J_TYPE = 7'b110_1111;	//Type J-Instruction
+localparam OPCODE_JAL_TYPE = 7'b110_1111;	//Type JAL-Instruction
 ////////////////////////////////////////////////////////////
 ///////////////////TYPE_L_INSTRUCTIONS//////////////////////
 localparam OPCODE_L_TYPE = 7'b000_0011;	//Type J-Instruction
