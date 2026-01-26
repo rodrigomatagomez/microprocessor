@@ -81,7 +81,7 @@ module control_unit(
             OPCODE_B_TYPE: begin
                 prf_wr_en       = 1'b0;   // branches do not write rd
                 cu_imm_sel      = IMM_B;  // branch offset immediate
-                prf_pc_mux_ctrl = 2'b10;   // operand1 = rs1 (as defined by your datapath for target calc)
+                prf_pc_mux_ctrl = 2'b01;   // operand1 = rs1 (as defined by your datapath for target calc)
                 cu_alu_ctrl   = ALU_ADD; // used for target computation elsewhere (PC + imm path)
                 branch_taken  = zero;    // redirect request when condition is true
                 unique case (funct_3)

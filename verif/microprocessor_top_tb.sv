@@ -13,11 +13,14 @@
 
 module microprocessor_top_tb;
 
+`include "defines.svh"
   // ---------------------------------------------------------------------------
   // Params
   // ---------------------------------------------------------------------------
-  parameter MAX_CYCLES = 10_000;
-  parameter OPCODE_JAL = 7'b110_1111;
+  parameter MAX_CYCLES      = 10_000;
+  parameter OPCODE_JAL      = 7'b110_1111;
+  parameter OPCODE_BRANCH   = 7'b110_0011;
+  parameter OPCODE_I_TYPE   = 7'b001_0011;
   // ---------------------------------------------------------------------------
   // Signals
   // ---------------------------------------------------------------------------
@@ -42,6 +45,22 @@ module microprocessor_top_tb;
     #20ns;
     arst_n = 1'b1;
   end
+
+`ifndef prf_init
+initial begin
+    for (int i = 1; i < 32; i++) begin  
+        microprocessor_DUT.prf_i.prf[i] = 32'b0;
+    end
+end
+`endif
+
+`ifndef data_mem
+initial begin
+    for (int i = 0; i < DEPTH; i++) begin  
+        microprocessor_DUT.data_mem_i.mem[i] = 32'b0;
+    end
+end
+`endif
 
   // ---------------------------------------------------------------------------
   // DUT
@@ -72,17 +91,34 @@ module microprocessor_top_tb;
             $error("PC misaligned");
             $finish;
         end;
-    assert property ( @(posedge clk) disable iff (!arst_n)
-        (microprocessor_DUT.cu_i.opcode == OPCODE_JAL) |-> ((microprocessor_DUT.pc_i.pc_in) == (microprocessor_DUT.alu_i.alu_result)) //Check when branch taken the next instruction is PC + imm
+    assert property (@(posedge clk) disable iff (!arst_n)
+      ( (microprocessor_DUT.cu_i.opcode != OPCODE_JAL)  &&
+        (microprocessor_DUT.cu_i.opcode != OPCODE_BRANCH)
+      )
+      |-> (microprocessor_DUT.pc_i.pc_in == microprocessor_DUT.pc_i.pc_out + 32'd4)
+    )
+    else begin
+      $error("PC next must be PC+4 when not JAL/JALR/BRANCH");
+      $finish;
+    end
+
+    assert property ( @(posedge clk) disable iff (!arst_n) 
+        ((microprocessor_DUT.upc_next_mux_i.sel) |-> ((microprocessor_DUT.pc_i.pc_in) == (microprocessor_DUT.imm_gen_i.imm_out + microprocessor_DUT.pc_i.pc_out)))//Check when branch taken the next instruction is PC + imm
         ) else begin 
-            $error("Wrong direction");
+            $fatal("Direction must be PC+imm");
             $finish;
-        end;
+    end;
     //--------------PRF---------------------------------------------------------
+        logic [4:0] rd_q;
+        //Save the past value of prf[rd]
+        always_ff @(posedge clk or negedge arst_n) begin
+          if (!arst_n) rd_q <= 5'd0;
+          else         rd_q <= microprocessor_DUT.prf_i.write_dir; // = instr[11:7]
+        end
     assert property ( @(posedge clk) disable iff (!arst_n)
         microprocessor_DUT.prf_i.prf[0] == 32'd0    //Check if prf[0] is ALWAYS zero 
         ) else begin 
-        $fatal("prf has to be always zero");
+        $fatal("x0 violation: register x0 is not zero");
         $finish;
     end;
     assert property ( @(posedge clk) disable iff (!arst_n)
@@ -90,7 +126,28 @@ module microprocessor_top_tb;
         ) else begin 
             $fatal("The instruction overwrited prf[0]");
             $finish;
-        end;  
+        end; 
+    /*assert property (@(posedge clk) disable iff (!arst_n)
+        (!microprocessor_DUT.prf_i.write_en && (rd_q != 5'd0))
+        |-> (microprocessor_DUT.prf_i.prf[rd_q] == $past(microprocessor_DUT.prf_i.prf[rd_q]))
+        ) else begin
+            $fatal("PRF changed when write_en = 0");
+            $finish;
+        end;*/
+    //-------------TYPE-I INSTRUCTIONS-----------------------------------------
+    assert property (@(posedge clk) disable iff (!arst_n)
+        (microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) |-> (microprocessor_DUT.prf_i.write_en)
+        ) else begin 
+            $fatal("prf_wr_en must be 1 in type I instruction");
+            $finish;
+          end;
+   
+   assert property (@(posedge clk) disable iff (!arst_n)
+        (microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) |-> (!microprocessor_DUT.data_mem_i.wr_en)
+        ) else begin 
+            $fatal("mem_wr_en must be 0 in type I instruction");
+            $finish;
+   end;
   // ---------------------------------------------------------------------------
   // Waves (Xcelium/SimVision SHM)
   // ---------------------------------------------------------------------------
