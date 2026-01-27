@@ -19,18 +19,16 @@ set id [waveform add -signals [subst  {
 	} ]]
 set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.instr_mem_i.pc[31:0]}]}
+	{[format {microprocessor_top_tb.microprocessor_DUT.pc_i.pc_in[31:0]}]}
 	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.pc_i.pc_out[31:0]}]}
+	} ]]
+set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.microprocessor_DUT.instr_mem_i.instr[31:0]}]}
 	} ]]
 set id [waveform add -cdivider divider]
-set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_en}]}
-	} ]]
-set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.prf[0:31]}]}
-	} ]]
 set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_data[31:0]}]}
 	} ]]
@@ -43,10 +41,14 @@ set id [waveform add -signals [subst  {
 set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.read_dir2[4:0]}]}
 	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.write_en}]}
+	} ]]
 set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.alu_i.alucontrol[3:0]}]}
+	{[format {microprocessor_top_tb.microprocessor_DUT.imm_gen_i.imm_out[31:0]}]}
 	} ]]
+set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.microprocessor_DUT.alu_i.operand1[31:0]}]}
 	} ]]
@@ -58,26 +60,62 @@ set id [waveform add -signals [subst  {
 	} ]]
 set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.imm_gen_i.instr[31:0]}]}
+	{[format {microprocessor_top_tb.microprocessor_DUT.data_mem_i.addr[31:0]}]}
 	} ]]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.imm_gen_i.imm_sel[2:0]}]}
+	{[format {microprocessor_top_tb.microprocessor_DUT.data_mem_i.data_in[31:0]}]}
 	} ]]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.imm_gen_i.imm_out[31:0]}]}
+	{[format {microprocessor_top_tb.microprocessor_DUT.data_mem_i.wr_en}]}
 	} ]]
 set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.opcode[6:0]}]}
+	{[format {microprocessor_top_tb.microprocessor_DUT.prf_i.prf[0:31]}]}
 	} ]]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.funct_3[2:0]}]}
+	{[format {microprocessor_top_tb.microprocessor_DUT.data_mem_i.mem[0:1023]}]}
 	} ]]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.funct_7[6:0]}]}
+	{[format {microprocessor_top_tb.__assert_1}]}
 	} ]]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.microprocessor_DUT.cu_i.branch_taken}]}
+	{[format {microprocessor_top_tb.__assert_2}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_3}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_4}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_5}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_6}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_7}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_8}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_9}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_10}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_11}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_12}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_13}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {microprocessor_top_tb.__assert_14}]}
 	} ]]
 
-waveform xview limits 0 115.087ns
+waveform xview limits 0 115.088ns

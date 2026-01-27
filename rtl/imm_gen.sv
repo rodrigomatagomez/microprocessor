@@ -25,7 +25,7 @@ module imm_gen(
     output logic [31:0] imm_out
 );
 
-`include "defines.svh"
+//`include "defines.svh"
 
     always_comb begin
         imm_out = '0; // default

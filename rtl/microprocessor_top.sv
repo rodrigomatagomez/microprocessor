@@ -23,7 +23,7 @@ module microprocessor_top (
     input logic         arst_n   
 );
 
-`include "defines.svh"
+//`include "defines.svh"
 
     //--------------------------------------------------------------------------
     // IF: Program Counter and Instruction Fetch

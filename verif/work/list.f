@@ -1,6 +1,7 @@
 # ============================ rtl
 ../../rtl/defines.svh
 ../../rtl/mux.sv
+../../rtl/mux_operand_1.sv
 ../../rtl/program_counter.sv
 ../../rtl/plus_4_or_2_mux.sv
 ../../rtl/adder.sv
