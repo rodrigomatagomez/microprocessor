@@ -13,14 +13,11 @@
 
 module microprocessor_top_tb;
 
-`include "defines.svh"
   // ---------------------------------------------------------------------------
   // Params
   // ---------------------------------------------------------------------------
+  `include "defines.svh"
   parameter MAX_CYCLES      = 10_000;
-  parameter OPCODE_JAL      = 7'b110_1111;
-  parameter OPCODE_BRANCH   = 7'b110_0011;
-  parameter OPCODE_I_TYPE   = 7'b001_0011;
   // ---------------------------------------------------------------------------
   // Signals
   // ---------------------------------------------------------------------------
@@ -56,7 +53,7 @@ end
 
 `ifndef data_mem
 initial begin
-    for (int i = 0; i < DEPTH; i++) begin  
+    for (int i = 0; i < 1024; i++) begin  
         microprocessor_DUT.data_mem_i.mem[i] = 32'b0;
     end
 end
@@ -92,8 +89,8 @@ end
             $finish;
         end;
     assert property (@(posedge clk) disable iff (!arst_n)
-      ( (microprocessor_DUT.cu_i.opcode != OPCODE_JAL)  &&
-        (microprocessor_DUT.cu_i.opcode != OPCODE_BRANCH)
+      ( (microprocessor_DUT.cu_i.opcode != OPCODE_JAL_TYPE)  &&
+        (microprocessor_DUT.cu_i.opcode != OPCODE_B_TYPE)
       )
       |-> (microprocessor_DUT.pc_i.pc_in == microprocessor_DUT.pc_i.pc_out + 32'd4)
     )
@@ -146,6 +143,55 @@ end
         (microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) |-> (!microprocessor_DUT.data_mem_i.wr_en)
         ) else begin 
             $fatal("mem_wr_en must be 0 in type I instruction");
+            $finish;
+   end;
+   
+   assert property (@(posedge clk) disable iff (!arst_n)
+        (microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) |-> (microprocessor_DUT.imm_gen_i.imm_out == {{20{microprocessor_DUT.instr_mem_i.instr[31]}}, microprocessor_DUT.instr_mem_i.instr[31:20]})
+        ) else begin
+            $fatal("I-immediate sign-extension wrong");
+            $finish;
+   end;
+   
+   assert property (@(posedge clk) disable iff (!arst_n)
+        ((microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) && (microprocessor_DUT.cu_i.funct_3 == ADDI)) |-> (microprocessor_DUT.alu_i.alu_result == (microprocessor_DUT.prf_i.read_data1 + microprocessor_DUT.imm_gen_i.imm_out))
+        ) else begin 
+            $fatal("ADDI ALU result mismatch");
+            $finish;
+   end;
+   
+   assert property (@(posedge clk) disable iff (!arst_n)
+        ((microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) && (microprocessor_DUT.cu_i.funct_3 == SLTI)) |-> (microprocessor_DUT.alu_i.alu_result == (($signed(microprocessor_DUT.prf_i.read_data1) < $signed(microprocessor_DUT.imm_gen_i.imm_out)) ? 32'd1 : 32'd0))
+        ) else begin 
+            $fatal("SLTI mismatch");
+            $finish;
+   end;
+   
+   assert property (@(posedge clk) disable iff (!arst_n)
+        ((microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) && (microprocessor_DUT.cu_i.funct_3 == SLTIU)) |-> (microprocessor_DUT.alu_i.alu_result == ((microprocessor_DUT.prf_i.read_data1 < microprocessor_DUT.imm_gen_i.imm_out) ? 32'd1 : 32'd0))
+        ) else begin 
+            $fatal("SLTIU mismatch");
+            $finish;
+   end;
+   
+   assert property (@(posedge clk) disable iff (!arst_n)
+          ((microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) && (microprocessor_DUT.cu_i.funct_3 == XORI)) |-> (microprocessor_DUT.alu_i.alu_result == (microprocessor_DUT.prf_i.read_data1 ^ microprocessor_DUT.imm_gen_i.imm_out))
+          ) else begin 
+            $fatal("XORI mismatch");
+            $finish;
+   end;
+
+   assert property (@(posedge clk) disable iff (!arst_n)
+          ((microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) && (microprocessor_DUT.cu_i.funct_3 == ORI)) |-> (microprocessor_DUT.alu_i.alu_result == (microprocessor_DUT.prf_i.read_data1 | microprocessor_DUT.imm_gen_i.imm_out))
+          ) else begin 
+            $fatal("ORI mismatch");
+            $finish;
+   end;
+
+   assert property (@(posedge clk) disable iff (!arst_n)
+          ((microprocessor_DUT.cu_i.opcode == OPCODE_I_TYPE) && (microprocessor_DUT.cu_i.funct_3 == ANDI)) |-> (microprocessor_DUT.alu_i.alu_result == (microprocessor_DUT.prf_i.read_data1 & microprocessor_DUT.imm_gen_i.imm_out))
+          ) else begin 
+            $fatal("ORI mismatch");
             $finish;
    end;
   // ---------------------------------------------------------------------------

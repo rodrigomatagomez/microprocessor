@@ -15,10 +15,10 @@
 module alu #(
 	parameter OPERAND_WIDTH = 32
 )(
-	input logic [OPERAND_WIDTH-1:0]	operand1,    // First operand, sourced from a register 
-	input logic [OPERAND_WIDTH-1:0]	operand2,    // Second operand sourced from a register
-	input logic [3:0]		alucontrol,     // Use 4 bits for the opcode at the moment 
-	output logic [OPERAND_WIDTH-1:0]	alu_result    // ALU result, destiny is another register
+	input logic [OPERAND_WIDTH-1:0]     operand1,    // First operand, sourced from a register 
+	input logic [OPERAND_WIDTH-1:0]     operand2,    // Second operand sourced from a register
+	input logic [3:0]		            alucontrol,  // Use 4 bits for the opcode at the moment 
+	output logic [OPERAND_WIDTH-1:0]	alu_result   // ALU result, destiny is another register
     );
 
 `include "defines.svh"
@@ -50,13 +50,11 @@ module alu #(
                 alu_result = OPERAND_WIDTH'(operand1 == operand2);
             end
             ALU_SLT: begin 
-		alu_result = OPERAND_WIDTH'($signed(operand1) < $signed(operand2));
+		        alu_result = OPERAND_WIDTH'($signed(operand1) < $signed(operand2));
             end
             ALU_SLTU: begin
                 alu_result = OPERAND_WIDTH'(operand1 < operand2);
             end
-
-
             ALU_SLL: begin
                 alu_result = operand1 << shamt;
             end

@@ -88,7 +88,3 @@ localparam INSTRUCTION_TO_PRF = 2'b10;
 localparam PC_4 = 2'b00;	//Add pc + 4
 localparam PC_BRANCH = 2'b01; 	//Add pc + imm(value)
 localparam PC_JAL = 2'b10;
-
-//just a prove to see if everything is well done in push
-
-//another test

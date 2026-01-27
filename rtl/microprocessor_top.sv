@@ -20,8 +20,7 @@
 //------------------------------------------------------------------------------
 module microprocessor_top (
     input logic         clk,
-    input logic         arst_n
-    //input logic [31:0]  instruction    
+    input logic         arst_n   
 );
 
 `include "defines.svh"
