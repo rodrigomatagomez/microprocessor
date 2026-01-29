@@ -24,7 +24,7 @@ module mux_operand_1 (
     input logic [1:0]	  sel,
     output logic [31:0]	data_out
     );
-`include "defines.svh"  
+//`include "defines.svh"  
 always_comb begin   
     unique case (sel)
         2'b00: begin	

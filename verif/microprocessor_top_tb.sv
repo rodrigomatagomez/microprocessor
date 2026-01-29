@@ -22,7 +22,16 @@ module tb;
     .dbg_dmem_we(micro_vif.dmem_we),
     .dbg_dmem_addr(micro_vif.dmem_addr),
     .dbg_dmem_wdata(micro_vif.dmem_wdata),
-    .dbg_dmem_rdata(micro_vif.dmem_rdata)
+    .dbg_dmem_rdata(micro_vif.dmem_rdata),
+
+    .dbg_cu_opcode(micro_vif.cu_opcode),
+    .dbg_cu_branch_taken(micro_vif.cu_branch_taken),
+
+    .dbg_alu_operand_1(micro_vif.alu_operand_1),
+    .dbg_alu_operand_2(micro_vif.alu_operand_2),
+    .dbg_alu_result(micro_vif.alu_result),
+
+    .dbg_imm_out(micro_vif.imm_out)
   );
 
   initial begin
@@ -35,15 +44,22 @@ module tb;
 //---------------------------------------------------------
 //  PROGRAM COUNTER 
 //---------------------------------------------------------
-pc_aligned: assert property (
-  @(posedge micro_vif.clk) disable iff (!micro_vif.arst_n)
+pc_aligned: assert property (@(posedge micro_vif.clk) disable iff (!micro_vif.arst_n)
     (micro_vif.pc[1:0] == 2'b00)
-) else begin
-    $fatal("PC alignment error: pc=%0h", micro_vif.pc);
-    $finish;
+    ) else begin
+        $error("PC alignment error: pc=%0h", micro_vif.pc);
 end
 
-  
+pc_branch: assert property (@(posedge micro_vif.clk) disable iff (!micro_vif.arst_n)
+    ((micro_vif.cu_opcode == 7'b110_0011) && (micro_vif.cu_branch_taken)) |=> (micro_vif.pc == (micro_vif.alu_operand_1 + micro_vif.imm_out))
+    ) else begin 
+        $error("PC should be PC+imm");
+end
+
+initial begin // Initial block to open shared memory and probe signals
+	$shm_open("shm_db");
+	$shm_probe("ASMTR");
+end  
 //Init PRF and DATA_MEM  
 `ifndef prf_init
     initial begin

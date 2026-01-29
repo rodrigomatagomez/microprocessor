@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-interface micro_if #(parameter int XLEN = 32) (input logic clk);
+interface micro_if #(parameter DATA_WIDTH = 32) (input logic clk);
 
   // --------------------------------------------
   // Reset
@@ -10,20 +10,32 @@ interface micro_if #(parameter int XLEN = 32) (input logic clk);
   // --------------------------------------------
   // Observation taps (from DUT)
   // --------------------------------------------
-  logic [XLEN-1:0] pc;
-  logic [XLEN-1:0] instr;
+  logic [DATA_WIDTH-1:0]    pc;
+  logic [DATA_WIDTH-1:0]    instr;
 
   // Write-back observation
-  logic            wb_we;
-  logic [4:0]      wb_rd;
-  logic [XLEN-1:0] wb_data;
+  logic                     wb_we;
+  logic [4:0]               wb_rd;
+  logic [DATA_WIDTH-1:0]    wb_data;
 
   // Data memory observation
-  logic            dmem_we;
-  logic [XLEN-1:0] dmem_addr;
-  logic [XLEN-1:0] dmem_wdata;
-  logic [XLEN-1:0] dmem_rdata;
+  logic                     dmem_we;
+  logic [DATA_WIDTH-1:0]    dmem_addr;
+  logic [DATA_WIDTH-1:0]    dmem_wdata;
+  logic [DATA_WIDTH-1:0]    dmem_rdata;
 
+  // Control unit observation
+  logic         cu_branch_taken;
+  logic [6:0]   cu_opcode;
+
+  // ALU observation
+  logic [DATA_WIDTH-1:0]    alu_operand_1;
+  logic [DATA_WIDTH-1:0]    alu_operand_2;
+  logic [DATA_WIDTH-1:0]    alu_result;
+
+  // Imm generator observation 
+  logic [DATA_WIDTH-1:0]    imm_out;
+    
   // --------------------------------------------
   // Clocking block
   // --------------------------------------------
@@ -34,9 +46,13 @@ interface micro_if #(parameter int XLEN = 32) (input logic clk);
     output arst_n;
 
     // Sample
-    input  pc, instr;
-    input  wb_we, wb_rd, wb_data;
-    input  dmem_we, dmem_addr, dmem_wdata, dmem_rdata;
+    input  pc, instr; 					                //program_conter and instruction_mem
+    input  wb_we, wb_rd, wb_data;			            //prf 
+    input  dmem_we, dmem_addr, dmem_wdata, dmem_rdata;	//data_mem
+    input  cu_branch_taken, cu_opcode;                  //control_unit
+    input  alu_operand_1, alu_operand_2, alu_result;    //ALU
+    input  imm_out;                                     //imm_gen
+
   endclocking
 
   // --------------------------------------------
@@ -47,15 +63,27 @@ interface micro_if #(parameter int XLEN = 32) (input logic clk);
   modport DUT (
     input  clk,
     input  arst_n,
+    // PC and instruction 
     output pc,
     output instr,
+    // PRF
     output wb_we,
     output wb_rd,
     output wb_data,
+    // data_mem
     output dmem_we,
     output dmem_addr,
     output dmem_wdata,
-    output dmem_rdata
+    output dmem_rdata,
+    // control_unit 
+    output cu_branch_taken,
+    output cu_opcode,
+    // ALU 
+    output alu_operand_1,
+    output alu_operand_2,
+    output alu_result,
+    // imm_gen
+    output imm_out
   );
 
   // --------------------------------------------

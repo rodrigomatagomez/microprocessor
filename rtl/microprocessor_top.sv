@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "defines.svh"
+//`include "defines.svh"
 //------------------------------------------------------------------------------
 // Module: microprocessor_top
 // Description:
@@ -35,7 +35,17 @@ module microprocessor_top (
     output logic                  dbg_dmem_we,
     output logic [DATA_WIDTH-1:0] dbg_dmem_addr,
     output logic [DATA_WIDTH-1:0] dbg_dmem_wdata,
-    output logic [DATA_WIDTH-1:0] dbg_dmem_rdata
+    output logic [DATA_WIDTH-1:0] dbg_dmem_rdata,
+
+    output logic [6:0]            dbg_cu_opcode,
+    output logic                  dbg_cu_branch_taken,
+
+    output logic [DATA_WIDTH-1:0] dbg_alu_operand_1,
+    output logic [DATA_WIDTH-1:0] dbg_alu_operand_2,
+    output logic [DATA_WIDTH-1:0] dbg_alu_result,
+
+    output logic [DATA_WIDTH-1:0] dbg_imm_out
+
 );
 
 
@@ -245,6 +255,19 @@ module microprocessor_top (
         dbg_dmem_addr  = alu_result;
         dbg_dmem_wdata = rs2_data;
         dbg_dmem_rdata = dmem_rdata;
+
+        // Control unit taps
+        dbg_cu_opcode = instr[6:0];
+        dbg_cu_branch_taken = branch_taken;
+
+        // ALU taps
+        dbg_alu_operand_1 = alu_op1;
+        dbg_alu_operand_2 = alu_op2;
+        dbg_alu_result    = alu_result;
+
+        // IMM gen taps
+        dbg_imm_out       = imm;
+
     end
 
 
