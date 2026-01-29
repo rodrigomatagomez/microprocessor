@@ -26,5 +26,11 @@ set id [waveform add -signals [subst  {
 	{[format {tb.micro_vif.instr[31:0]}]}
 	} ]]
 set id [waveform add -cdivider divider]
+set id [waveform add -signals [subst  {
+	{[format {tb.pc_aligned}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {tb.pc_branch}]}
+	} ]]
 
 waveform xview limits 0 255ns
