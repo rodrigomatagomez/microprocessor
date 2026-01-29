@@ -1,66 +1,73 @@
 `timescale 1ns/1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Module Name:    microprocessor_if
-// Description:
-//   Verification interface for a single-cycle RV32I microprocessor.
-//////////////////////////////////////////////////////////////////////////////////
 
-interface microprocessor_if (input logic clk, input logic arst_n);
+interface micro_if #(parameter int XLEN = 32) (input logic clk);
 
-  //INSTRUCTION parameters
-  parameter DATA_WIDTH    =   32;
-  parameter ADDI_OPCODE   =   7'b0010011;
-  parameter FUNCT3_ADDI   =   3'b000; 
-  parameter OPCODE_OPIMM  =   7'b0010011;
-  //Declaration of signals used by testbench only (can only be accessed by interface tasks/functions)
-  logic [DATA_WIDTH-1:0]  instruction;
-  logic [4:0]             rd;
-  logic [4:0]             rs1;
-  logic [4:0]             rs2;
-  logic [11:0]            imm_addi;
-  //-------INSTRUCTIONS---------------
-  //--------PRF-----------------------
+  // --------------------------------------------
+  // Reset
+  // --------------------------------------------
+  bit arst_n;
 
-  //This modport is to connect with the logic 
-  /*modport microprocessor_modport(
-  input instruction
-  );*/
+  // --------------------------------------------
+  // Observation taps (from DUT)
+  // --------------------------------------------
+  logic [XLEN-1:0] pc;
+  logic [XLEN-1:0] instr;
 
-  //------------------------------------------------------------------------------
-  // Task: drive an ADDI instruction (I-type)
-  // I-type layout:
-  //	[31:20]	imm[11:0]
-  //	[19:15]	rs1
-  //	[14:12]	func3
-  //	[11:7]	rd
-  //	[6:0]	opcode
-  //-----------------------------------------------------------------------------
-  function logic [31:0] build_addi_random();
-    std::randomize (rd, rs1, imm_addi) with {
-      rd  inside  {[1:31]};
-      rs1 inside  {[0:31]};
-      imm_addi  inside  {[0:4095]};
-      };
-      instruction = {imm_addi, rs1, FUNCT3_ADDI, rd, OPCODE_OPIMM};
+  // Write-back observation
+  logic            wb_we;
+  logic [4:0]      wb_rd;
+  logic [XLEN-1:0] wb_data;
 
-    endfunction 
-    //--------------------------------------------------------------------------
-    //Task: fill the prf to avoid X in results
-    // Fill x1..x31 with non-zero deterministic values using ADDI xN, x0, imm
-    // x0 is hardwired to 0 by ISA, so we avoid writing x0.
-    // ------------------------------------------------------------------------
-    task automatic init_prf();
-      for( rd = 1; rd <= 31; rd++) begin
-        @(posedge clk);	
-        instruction <= {12'd0, 5'd0, FUNCT3_ADDI, rd, OPCODE_OPIMM};
-      end
-    endtask
-    /*
-    //--------------------------------------------------------------------------------
-    //function: check if the instrucction is Type-I (addi)
-    //-------------------------------------------------------------------------------
-    function automatic check_addi (logic [DATA_WIDTH-1:0] instruction);
-    return (addi_instr[6:0] == OPCODE_OPIMM) && (addi_instr[14:12] == FUNCT3_ADDI);
-    endfunction
-    */    
-  endinterface 
+  // Data memory observation
+  logic            dmem_we;
+  logic [XLEN-1:0] dmem_addr;
+  logic [XLEN-1:0] dmem_wdata;
+  logic [XLEN-1:0] dmem_rdata;
+
+  // --------------------------------------------
+  // Clocking block
+  // --------------------------------------------
+  clocking cb @(posedge clk);
+    default input #1step output #1step;
+
+    // Drive
+    output arst_n;
+
+    // Sample
+    input  pc, instr;
+    input  wb_we, wb_rd, wb_data;
+    input  dmem_we, dmem_addr, dmem_wdata, dmem_rdata;
+  endclocking
+
+  // --------------------------------------------
+  // Modports
+  // --------------------------------------------
+  modport TB (clocking cb);
+
+  modport DUT (
+    input  clk,
+    input  arst_n,
+    output pc,
+    output instr,
+    output wb_we,
+    output wb_rd,
+    output wb_data,
+    output dmem_we,
+    output dmem_addr,
+    output dmem_wdata,
+    output dmem_rdata
+  );
+
+  // --------------------------------------------
+  // TB helper tasks
+  // --------------------------------------------
+  task automatic apply_reset(int unsigned cycles = 5);
+    cb.arst_n <= 1'b0;
+    repeat (cycles) @(cb);
+    cb.arst_n <= 1'b1;
+    @(cb);
+  endtask
+  
+  
+
+endinterface

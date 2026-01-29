@@ -18,7 +18,8 @@
 module instruction_memory #(
     parameter DATA_WIDTH = 32,
     parameter DEPTH      = 1024,
-    parameter string MEMFILE = "../programs/hex/test1.mem" 
+    //parameter string MEMFILE = "../programs/hex/test1.mem"  //xcelium 
+    parameter string MEMFILE = "test1.mem" 
 )(
     input  logic [DATA_WIDTH-1:0] pc,
     output logic [DATA_WIDTH-1:0] instr

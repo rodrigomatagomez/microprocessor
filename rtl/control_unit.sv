@@ -42,7 +42,7 @@ module control_unit(
     output logic        branch_taken         // PC redirect request (branch/jump)
 );
 
-//`include "defines.svh"
+`include "defines.svh"
 
     always_comb begin
         //-------------------------------------------------------------------------

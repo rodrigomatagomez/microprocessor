@@ -21,7 +21,7 @@ module alu #(
 	output logic [OPERAND_WIDTH-1:0]	alu_result   // ALU result, destiny is another register
     );
 
-//`include "defines.svh"
+`include "defines.svh"
     
     logic [4:0] shamt;	
     assign shamt = operand2[4:0];

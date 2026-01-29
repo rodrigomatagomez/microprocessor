@@ -24,7 +24,7 @@ module branch #(parameter DATA_WIDTH_BRANCH = 32)(
     output logic			        branch_taken
     );
 
-//`include "defines.svh"
+`include "defines.svh"
 
     always_comb begin 
     branch_taken = 1'b0;

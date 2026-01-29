@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-
+`include "defines.svh"
 //------------------------------------------------------------------------------
 // Module: microprocessor_top
 // Description:
@@ -19,11 +19,25 @@
 //     besides submodules (PC, RF, memories).
 //------------------------------------------------------------------------------
 module microprocessor_top (
-    input logic         clk,
-    input logic         arst_n   
+    input  logic         clk,
+    input  logic         arst_n,
+
+    // --------------------------------------------
+    // Debug/verification taps
+    // --------------------------------------------
+    output logic [DATA_WIDTH-1:0] dbg_pc,
+    output logic [DATA_WIDTH-1:0] dbg_instr,
+
+    output logic                  dbg_wb_we,
+    output logic [4:0]            dbg_wb_rd,
+    output logic [DATA_WIDTH-1:0] dbg_wb_data,
+
+    output logic                  dbg_dmem_we,
+    output logic [DATA_WIDTH-1:0] dbg_dmem_addr,
+    output logic [DATA_WIDTH-1:0] dbg_dmem_wdata,
+    output logic [DATA_WIDTH-1:0] dbg_dmem_rdata
 );
 
-//`include "defines.svh"
 
     //--------------------------------------------------------------------------
     // IF: Program Counter and Instruction Fetch
@@ -215,5 +229,23 @@ module microprocessor_top (
         .cu_pc_add_sel     (pc_inc_sel),
         .branch_taken      (branch_taken)
     );
+    
+    always_comb begin
+        // PC/Instruction
+        dbg_pc    = pc_q;
+        dbg_instr = instr;
+
+        // Write-back taps
+        dbg_wb_we   = rf_we;
+        dbg_wb_rd   = instr[11:7];
+        dbg_wb_data = wb_data;
+
+        // Data memory taps
+        dbg_dmem_we    = dmem_we;
+        dbg_dmem_addr  = alu_result;
+        dbg_dmem_wdata = rs2_data;
+        dbg_dmem_rdata = dmem_rdata;
+    end
+
 
 endmodule
