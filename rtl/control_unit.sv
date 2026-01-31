@@ -26,6 +26,7 @@
 //     Opcode decoding below overrides only what differs per instruction class.
 //   - Assertions for illegal/unsupported encodings can be added in a later stage.
 //------------------------------------------------------------------------------
+`include "defines.svh"
 module control_unit(
     input  logic [6:0]  opcode,             // instr[6:0]
     input  logic [2:0]  funct_3,            // instr[14:12]
@@ -41,8 +42,6 @@ module control_unit(
     output logic        cu_pc_add_sel,       // PC increment select (+4 now; +2 reserved)
     output logic        branch_taken         // PC redirect request (branch/jump)
 );
-
-//`include "defines.svh"
 
     always_comb begin
         //-------------------------------------------------------------------------
@@ -109,7 +108,7 @@ module control_unit(
                 prf_imm_mux_ctrl = 1'b0; // operand2 = rs2 (not immediate)
 
                 // funct7 selects ADD/SUB and SRL/SRA families in RV32I
-                if (funct_7 == 7'b0000000) begin
+                if (funct_7 == 7'b0000_000) begin
                     unique case (funct_3)
                         ADD:   cu_alu_ctrl = ALU_ADD;
                         SLL:   cu_alu_ctrl = ALU_SLL;
@@ -121,7 +120,7 @@ module control_unit(
                         AND_:  cu_alu_ctrl = ALU_AND;
                         default:cu_alu_ctrl = ALU_ADD;
                     endcase
-                end else if (funct_7 == 7'b0100000) begin
+                end else if (funct_7 == 7'b0100_000) begin
                     unique case (funct_3)
                         SUB:   cu_alu_ctrl = ALU_SUB;
                         SRA:   cu_alu_ctrl = ALU_SRA;

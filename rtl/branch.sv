@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "defines.svh"
 //------------------------------------------------------------------------------
 // Module: branch
 // Description:
@@ -23,8 +24,6 @@ module branch #(parameter DATA_WIDTH_BRANCH = 32)(
     input logic [2:0]               funct_3,        
     output logic			        branch_taken
     );
-
-//`include "defines.svh"
 
     always_comb begin 
     branch_taken = 1'b0;

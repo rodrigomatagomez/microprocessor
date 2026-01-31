@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "defines.svh"
 //------------------------------------------------------------------------------
 // Module: imm_gen
 // Description:
@@ -24,8 +25,6 @@ module imm_gen(
     input  logic [2:0]  imm_sel,
     output logic [31:0] imm_out
 );
-
-//`include "defines.svh"
 
     always_comb begin
         imm_out = '0; // default

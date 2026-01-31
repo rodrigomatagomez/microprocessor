@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-//`include "defines.svh"
+`include "defines.svh"
 //------------------------------------------------------------------------------
 // Module: microprocessor_top
 // Description:
@@ -19,33 +19,10 @@
 //     besides submodules (PC, RF, memories).
 //------------------------------------------------------------------------------
 module microprocessor_top (
-    input  logic         clk,
-    input  logic         arst_n,
-
-    // --------------------------------------------
-    // Debug/verification taps
-    // --------------------------------------------
-    output logic [DATA_WIDTH-1:0] dbg_pc,
-    output logic [DATA_WIDTH-1:0] dbg_instr,
-
-    output logic                  dbg_wb_we,
-    output logic [4:0]            dbg_wb_rd,
-    output logic [DATA_WIDTH-1:0] dbg_wb_data,
-
-    output logic                  dbg_dmem_we,
-    output logic [DATA_WIDTH-1:0] dbg_dmem_addr,
-    output logic [DATA_WIDTH-1:0] dbg_dmem_wdata,
-    output logic [DATA_WIDTH-1:0] dbg_dmem_rdata,
-
-    output logic [6:0]            dbg_cu_opcode,
-    output logic                  dbg_cu_branch_taken,
-
-    output logic [DATA_WIDTH-1:0] dbg_alu_operand_1,
-    output logic [DATA_WIDTH-1:0] dbg_alu_operand_2,
-    output logic [DATA_WIDTH-1:0] dbg_alu_result,
-
-    output logic [DATA_WIDTH-1:0] dbg_imm_out
-
+    input logic                    clk,
+    input logic                    arst_n,
+    input logic                    instr_en,
+    input logic [DATA_WIDTH-1:0]   driven_instr
 );
 
 
@@ -58,7 +35,9 @@ module microprocessor_top (
     logic [DATA_WIDTH-1:0] pc_plus_inc;     // sequential next PC (PC + inc)
     logic                  pc_inc_sel;      // +4 vs +2 selector (future)
     logic [2:0]            pc_inc;          // increment constant (2 or 4)
-    logic [DATA_WIDTH-1:0] instr;           // fetched instruction
+    
+    logic [DATA_WIDTH-1:0] instruction;
+    logic [DATA_WIDTH-1:0] mem_instruction;           // fetched instruction
 
     // Next-PC select:
     //   - branch_taken=0 -> sequential PC+4
@@ -98,7 +77,7 @@ module microprocessor_top (
     // Instruction memory (word-indexed; PC is byte-addressed)
     instruction_memory #(.DATA_WIDTH(DATA_WIDTH), .DEPTH(DEPTH)) instr_mem_i (
         .pc   (pc_q),
-        .instr(instr)
+        .instr(mem_instruction)
     );
 
     //--------------------------------------------------------------------------
@@ -116,9 +95,9 @@ module microprocessor_top (
         .clk       (clk),
         .arst_n    (arst_n),
         .write_en  (rf_we),
-        .read_dir1 (instr[19:15]),   // rs1
-        .read_dir2 (instr[24:20]),   // rs2
-        .write_dir (instr[11:7]),    // rd
+        .read_dir1 (instruction[19:15]),   // rs1
+        .read_dir2 (instruction[24:20]),   // rs2
+        .write_dir (instruction[11:7]),    // rd
         .write_data(wb_data),
         .read_data1(rs1_data),
         .read_data2(rs2_data)
@@ -132,7 +111,7 @@ module microprocessor_top (
     logic [DATA_WIDTH-1:0] imm;
 
     imm_gen imm_gen_i (
-        .instr   (instr),
+        .instr   (instruction),
         .imm_sel (imm_sel),
         .imm_out (imm)
     );
@@ -185,8 +164,8 @@ module microprocessor_top (
     branch #(.DATA_WIDTH_BRANCH(DATA_WIDTH)) branch_cmp_i (
         .rs_1           (rs1_data),
         .rs_2           (rs2_data),
-        .opcode         (instr[6:0]),
-        .funct_3        (instr[14:12]),
+        .opcode         (instruction[6:0]),
+        .funct_3        (instruction[14:12]),
         .branch_taken   (b_condition_rs1_rs2)
     );
 
@@ -224,9 +203,9 @@ module microprocessor_top (
     //--------------------------------------------------------------------------
 
     control_unit cu_i (
-        .opcode            (instr[6:0]),
-        .funct_3           (instr[14:12]),
-        .funct_7           (instr[31:25]),
+        .opcode            (instruction[6:0]),
+        .funct_3           (instruction[14:12]),
+        .funct_7           (instruction[31:25]),
         .zero              (b_condition_rs1_rs2),     // B condition
 
         .prf_wr_en         (rf_we),
@@ -240,35 +219,6 @@ module microprocessor_top (
         .branch_taken      (branch_taken)
     );
     
-    always_comb begin
-        // PC/Instruction
-        dbg_pc    = pc_q;
-        dbg_instr = instr;
-
-        // Write-back taps
-        dbg_wb_we   = rf_we;
-        dbg_wb_rd   = instr[11:7];
-        dbg_wb_data = wb_data;
-
-        // Data memory taps
-        dbg_dmem_we    = dmem_we;
-        dbg_dmem_addr  = alu_result;
-        dbg_dmem_wdata = rs2_data;
-        dbg_dmem_rdata = dmem_rdata;
-
-        // Control unit taps
-        dbg_cu_opcode = instr[6:0];
-        dbg_cu_branch_taken = branch_taken;
-
-        // ALU taps
-        dbg_alu_operand_1 = alu_op1;
-        dbg_alu_operand_2 = alu_op2;
-        dbg_alu_result    = alu_result;
-
-        // IMM gen taps
-        dbg_imm_out       = imm;
-
-    end
-
-
+    assign instruction = instr_en ? driven_instr : mem_instruction;
+    
 endmodule

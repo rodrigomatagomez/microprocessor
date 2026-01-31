@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "defines.svh"  
 //------------------------------------------------------------------------------
 // Module: mux_3_to_1
 // Description:
@@ -24,7 +25,7 @@ module mux_3_to_1 (
     input logic [1:0]	sel,
     output logic [31:0]	data_out
     );
-//`include "defines.svh"  
+
 always_comb begin   
     unique case (sel)
         ALU_TO_PRF: begin	

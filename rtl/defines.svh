@@ -1,10 +1,12 @@
+`ifndef DEFINES_SVH
+`define DEFINES_SVH
 //////prf
-parameter DIR_WIDTH = 5;
+localparam DIR_WIDTH = 5;
 /////instruction memory
-parameter DATA_WIDTH = 32;      // Ancho de instruccion (La instrucción completa mide 32 bits)
-parameter ADDR_WIDTH = 10;      // Ancho de dirección del PC (El PC maneja direcciones de 32 bits)
-parameter BYTE_WIDTH = 8;      // Ancho de cajón de la memoria (1 Byte)
-parameter DEPTH  = 1024;      // Numero de renglones de memoria
+localparam DATA_WIDTH = 32;      // Ancho de instruccion (La instrucción completa mide 32 bits)
+localparam ADDR_WIDTH = 10;      // Ancho de dirección del PC (El PC maneja direcciones de 32 bits)
+localparam BYTE_WIDTH = 8;      // Ancho de cajón de la memoria (1 Byte)
+localparam DEPTH  = 1024;      // Numero de renglones de memoria
 ///////////////////TYPE_R_INSTRUCTIONS////////////////////// 
 localparam OPCODE_R_TYPE = 7'b011_0011;	//Type R-Instruction  ---
 //TYPES OF OPERATIONS
@@ -27,7 +29,7 @@ localparam SLTI  = 3'b010; //rd = (rs1 < imm) signed
 localparam SLTIU = 3'b011; //rd = (rs1 < imm) unsigned
 localparam XORI  = 3'b100; //rd = rs1 XOR imm
 localparam ORI   = 3'b110; //rd = rs1 OR imm
-localparam ANDI  = 3'b111; //rd = rs1 AND imm`
+localparam ANDI  = 3'b111; //rd = rs1 AND imm
 ////////////////////////////////////////////////////////////
 ///////////////////TYPE_B_INSTRUCTIONS////////////////////// 
 localparam OPCODE_B_TYPE = 7'b110_0011;	//Type B-Instruction  
@@ -52,14 +54,14 @@ localparam LBU  = 3'b100;
 localparam LHU  = 3'b101;
 ////////////////////////////////////////////////////////////
 ///////////////////TYPE_S_INSTRUCTIONS//////////////////////
-localparam OPCODE_S_TYPE = 7'b010_0011;	//Type J-Instruction
+localparam OPCODE_S_TYPE = 7'b010_0011;	//Type S-Instruction
 //TYPES OF OPERATION
 localparam SB   = 3'b000;
 localparam SH   = 3'b001;
 localparam SW   = 3'b010;
 ////////////////////////////////////////////////////////////
 ///////////////////TYPE_U_INSTRUCTIONS//////////////////////
-localparam OPCODE_U_LUI = 7'b011_0111;	//Type J-Instruction
+localparam OPCODE_U_LUI = 7'b011_0111;	//Type I-Instruction
 localparam OPCODE_U_AUIPC = 7'b001_0111;	//Type J-Instruction
 //Define the intructions for ALU
 localparam ALU_ADD =  4'b0000;	//ALU add operation
@@ -88,3 +90,4 @@ localparam INSTRUCTION_TO_PRF = 2'b10;
 localparam PC_4 = 2'b00;	//Add pc + 4
 localparam PC_BRANCH = 2'b01; 	//Add pc + imm(value)
 localparam PC_JAL = 2'b10;
+`endif // DEFINES_SVH
