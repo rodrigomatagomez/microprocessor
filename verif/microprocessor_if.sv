@@ -70,6 +70,7 @@ opcode_kind_enum actual_instruction;
   //  ==============================================
   //  ID/WB (Instruction Decode/Write Back)
   logic                   rf_we;
+  logic [DATA_W:0]        x0;
   logic [DIR_W-1:0]       rs1, rs2, rd;
   logic [DATA_W-1:0]      rs1_data, rs2_data;
   logic [DATA_W-1:0]      wb_data;
@@ -95,8 +96,8 @@ opcode_kind_enum actual_instruction;
 //==============================================
 // Decode opcode -> enum for waveform visibility
 always_comb begin
-
-  unique casez ({instruction[31:25], instruction[14:12], instruction[6:0]})
+    actual_instruction = M_UNKNOWN;
+  priority casez ({instruction[31:25], instruction[14:12], instruction[6:0]})
 
     // U / J
     {7'b???_????, 3'b???, OPCODE_U_LUI}   : actual_instruction = M_LUI;
@@ -156,7 +157,7 @@ end
     input pc_q, pc_next, pc_plus_inc;
     input branch_taken, branch_target, instruction, instruction_sel;
 
-    input rf_we, rs1, rs2, rd;
+    input rf_we, rs1, rs2, rd, x0;
     input rs1_data, rs2_data, wb_data, wb_sel;
 
     input imm_sel, imm;
