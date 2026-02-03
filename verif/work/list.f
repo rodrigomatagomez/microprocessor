@@ -15,5 +15,7 @@
 ../../rtl/control_unit.sv
 ../../rtl/microprocessor_top.sv
 # ============================ verification
+../instruction_generator.sv
+../instr_drive_if.sv
 ../microprocessor_if.sv
 ../microprocessor_top_tb.sv

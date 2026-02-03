@@ -120,6 +120,13 @@ module microprocessor_top_tb;
         @(posedge clk);
         $finish;
       end
+
+    initial begin // Initial block to open shared memory and probe signals
+		$shm_open("shm_db");
+		$shm_probe("AS");
+	end
+
+
 //  =============================================================================================================
 //  PC AND PRF
 `AST (it, pc_aligned,

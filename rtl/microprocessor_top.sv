@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "defines.svh"
+//`include "defines.svh"
 //------------------------------------------------------------------------------
 // Module: microprocessor_top
 // Description:
@@ -108,7 +108,7 @@ module microprocessor_top (
     //--------------------------------------------------------------------------
 
     logic [2:0]            imm_sel;
-    logic [DATA_WIDTH-1:0] imm;
+        logic [DATA_WIDTH-1:0] imm;
 
     imm_gen imm_gen_i (
         .instr   (instruction),
