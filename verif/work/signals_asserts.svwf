@@ -77,12 +77,11 @@ set id [waveform add -signals [subst  {
 	} ]]
 set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.drive_if.driven_instr[31:0]}]}
+	{[format {microprocessor_top_tb.vif.actual_instruction[5:0]}]}
 	} ]]
 set id [waveform add -signals [subst  {
-	{[format {microprocessor_top_tb.vif.instruction[31:0]}]}
+	{[format {microprocessor_top_tb.drive_if.driven_instr[31:0]}]}
 	} ]]
-waveform format $id -color #00ff00
 set id [waveform add -cdivider divider]
 set id [waveform add -signals [subst  {
 	{[format {microprocessor_top_tb.vif.rf_we}]}
@@ -141,4 +140,4 @@ set groupId0 [waveform add -groups ASSERTS]
 waveform hierarchy collapse $groupId0
 
 
-waveform xview limits 71.093ns 78.907ns
+waveform xview limits 61.721ns 69.535ns
