@@ -1,3 +1,5 @@
+#============================= fv
+../../fv/fv_microprocessor_top.sv
 # ============================ rtl
 ../../rtl/defines.svh
 ../../rtl/mux.sv

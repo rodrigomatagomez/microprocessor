@@ -43,6 +43,8 @@ module microprocessor_top_tb;
     .driven_instr (drive_if.driven_instr)
   );
 
+  //bind microprocessor_top fv_microprocessor_top .(*) fv_microprocessor_top_i
+
   // ===========================================================================
   // DUT -> VIF "probe bridge"
   // ===========================================================================
