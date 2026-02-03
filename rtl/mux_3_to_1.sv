@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "defines.svh"  
+//`include "defines.svh"  
 //------------------------------------------------------------------------------
 // Module: mux_3_to_1
 // Description:

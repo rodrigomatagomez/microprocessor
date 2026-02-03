@@ -26,7 +26,7 @@
 //     Opcode decoding below overrides only what differs per instruction class.
 //   - Assertions for illegal/unsupported encodings can be added in a later stage.
 //------------------------------------------------------------------------------
-`include "defines.svh"
+//`include "defines.svh"
 module control_unit(
     input  logic [6:0]  opcode,             // instr[6:0]
     input  logic [2:0]  funct_3,            // instr[14:12]

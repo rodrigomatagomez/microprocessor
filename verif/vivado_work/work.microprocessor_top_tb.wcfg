@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="work.microprocessor_top_tb.wdb" id="1">
+         <top_modules>
+            <top_module name="\$unit_defines_svh_1762165325 " />
+            <top_module name="microprocessor_top_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="512.041 ns"></ZoomStartTime>
+      <ZoomEndTime time="556.142 ns"></ZoomEndTime>
+      <Cursor1Time time="540.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="210"></NameColumnWidth>
+      <ValueColumnWidth column_width="118"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="29" />
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/vif/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/arst_n">
+      <obj_property name="ElementShortName">arst_n</obj_property>
+      <obj_property name="ObjectShortName">arst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider318" type="divider">
+      <obj_property name="label">PC</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/pc_next">
+      <obj_property name="ElementShortName">pc_next[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pc_next[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/pc_q">
+      <obj_property name="ElementShortName">pc_q[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pc_q[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider322" type="divider">
+      <obj_property name="label">INSTRUCTION</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/actual_instruction">
+      <obj_property name="ElementShortName">actual_instruction[5:0]</obj_property>
+      <obj_property name="ObjectShortName">actual_instruction[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/instruction">
+      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider323" type="divider">
+      <obj_property name="label">PRF</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/vif/rf_we">
+      <obj_property name="ElementShortName">rf_we</obj_property>
+      <obj_property name="ObjectShortName">rf_we</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/wb_data">
+      <obj_property name="ElementShortName">wb_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wb_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/rd">
+      <obj_property name="ElementShortName">rd[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rd[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/rs1">
+      <obj_property name="ElementShortName">rs1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rs1[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/rs2">
+      <obj_property name="ElementShortName">rs2[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rs2[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/rs1_data">
+      <obj_property name="ElementShortName">rs1_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rs1_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/rs2_data">
+      <obj_property name="ElementShortName">rs2_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rs2_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/x0">
+      <obj_property name="ElementShortName">x0[32:0]</obj_property>
+      <obj_property name="ObjectShortName">x0[32:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider340" type="divider">
+      <obj_property name="label">IMMEDIATE</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/imm">
+      <obj_property name="ElementShortName">imm[31:0]</obj_property>
+      <obj_property name="ObjectShortName">imm[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider342" type="divider">
+      <obj_property name="label">BRANCH</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/vif/b_condition_rs1_rs2">
+      <obj_property name="ElementShortName">b_condition_rs1_rs2</obj_property>
+      <obj_property name="ObjectShortName">b_condition_rs1_rs2</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider330" type="divider">
+      <obj_property name="label">ALU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/alu_op1">
+      <obj_property name="ElementShortName">alu_op1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_op1[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/alu_op2">
+      <obj_property name="ElementShortName">alu_op2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_op2[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/alu_result">
+      <obj_property name="ElementShortName">alu_result[31:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_result[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider334" type="divider">
+      <obj_property name="label">DATA_MEMORY</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/dmem_addr">
+      <obj_property name="ElementShortName">dmem_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dmem_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/dmem_wdata">
+      <obj_property name="ElementShortName">dmem_wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dmem_wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/dmem_rdata">
+      <obj_property name="ElementShortName">dmem_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dmem_rdata[31:0]</obj_property>
+   </wvobject>
+</wave_config>

@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "defines.svh"
+//`include "defines.svh"
 //------------------------------------------------------------------------------
 // Module: alu
 // Description:
@@ -24,8 +24,8 @@ module alu #(
 
 
     
-    logic [4:0] shamt;	
-    assign shamt = operand2[4:0];
+    //logic [4:0] shamt;	
+    //assign shamt = operand2[4:0];
 
     always_comb begin
         unique case(alucontrol)
@@ -57,13 +57,13 @@ module alu #(
                 alu_result = OPERAND_WIDTH'(operand1 < operand2);
             end
             ALU_SLL: begin
-                alu_result = operand1 << shamt;
+                alu_result = operand1 << operand2[4:0];
             end
             ALU_SRL: begin
-                alu_result = operand1 >> shamt;
+                alu_result = operand1 >> operand2[4:0];
             end
             ALU_SRA: begin
-                alu_result = $signed(operand1) >>> shamt;
+                alu_result = $signed(operand1) >>> operand2[4:0];
 	    end
             // Send zero as a default case
             default: alu_result = '0;

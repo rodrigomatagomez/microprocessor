@@ -72,7 +72,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       // -------------------------
       // I-type ALU
       // -------------------------
-      M_ADDI: begin
+      I_ADDI: begin
         instr[31:20] = it.imm_i[11:0];
         instr[19:15] = it.rs1;
         instr[14:12] = 3'b000;
@@ -80,7 +80,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_I;
       end
 
-      M_SLTI: begin
+      I_SLTI: begin
         instr[31:20] = it.imm_i[11:0];
         instr[19:15] = it.rs1;
         instr[14:12] = 3'b010;
@@ -88,7 +88,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_I;
       end
 
-      M_SLTIU: begin
+      I_SLTIU: begin
         instr[31:20] = it.imm_i[11:0];
         instr[19:15] = it.rs1;
         instr[14:12] = 3'b011;
@@ -96,7 +96,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_I;
       end
 
-      M_XORI: begin
+      I_XORI: begin
         instr[31:20] = it.imm_i[11:0];
         instr[19:15] = it.rs1;
         instr[14:12] = 3'b100;
@@ -104,7 +104,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_I;
       end
 
-      M_ORI: begin
+      I_ORI: begin
         instr[31:20] = it.imm_i[11:0];
         instr[19:15] = it.rs1;
         instr[14:12] = 3'b110;
@@ -112,7 +112,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_I;
       end
 
-      M_ANDI: begin
+      I_ANDI: begin
         instr[31:20] = it.imm_i[11:0];
         instr[19:15] = it.rs1;
         instr[14:12] = 3'b111;
@@ -123,7 +123,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       // -------------------------
       // R-type ALU
       // -------------------------
-      M_ADD: begin
+      R_ADD: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -132,7 +132,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_SUB: begin
+      R_SUB: begin
         instr[31:25] = F7_SUB;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -141,7 +141,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_SLL: begin
+      R_SLL: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -150,7 +150,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_SLT: begin
+      R_SLT: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -159,7 +159,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_SLTU: begin
+      R_SLTU: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -168,7 +168,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_XOR: begin
+      R_XOR: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -177,7 +177,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_SRL: begin
+      R_SRL: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -186,7 +186,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_SRA: begin
+      R_SRA: begin
         instr[31:25] = F7_SRA;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -195,7 +195,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_OR: begin
+      R_OR: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -204,7 +204,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      M_AND: begin
+      R_AND: begin
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -216,18 +216,18 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       // -------------------------
       // Loads
       // -------------------------
-      M_LB, M_LH, M_LW, M_LBU, M_LHU: begin
+      L_LB, L_LH, L_LW, L_LBU, L_LHU: begin
         instr[31:20] = it.imm_i[11:0];
         instr[19:15] = it.rs1;
         instr[11:7]  = it.rd;
         instr[6:0]   = OPCODE_L;
 
         unique case (it.kind)
-          M_LB:  instr[14:12] = F3_LB;
-          M_LH:  instr[14:12] = F3_LH;
-          M_LW:  instr[14:12] = F3_LW;
-          M_LBU: instr[14:12] = F3_LBU;
-          M_LHU: instr[14:12] = F3_LHU;
+          L_LB:  instr[14:12] = F3_LB;
+          L_LH:  instr[14:12] = F3_LH;
+          L_LW:  instr[14:12] = F3_LW;
+          L_LBU: instr[14:12] = F3_LBU;
+          L_LHU: instr[14:12] = F3_LHU;
           default: instr[14:12] = F3_LW;
         endcase
       end
@@ -235,7 +235,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       // -------------------------
       // Stores
       // -------------------------
-      M_SB, M_SH, M_SW: begin
+      S_SB, S_SH, S_SW: begin
         instr[31:25] = it.imm_s[11:5];
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -243,9 +243,9 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_S;
 
         unique case (it.kind)
-          M_SB: instr[14:12] = F3_SB;
-          M_SH: instr[14:12] = F3_SH;
-          M_SW: instr[14:12] = F3_SW;
+          S_SB: instr[14:12] = F3_SB;
+          S_SH: instr[14:12] = F3_SH;
+          S_SW: instr[14:12] = F3_SW;
           default: instr[14:12] = F3_SW;
         endcase
       end
@@ -254,7 +254,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       // Branches (B-type immediate bit placement)
       // imm_b[12|10:5|4:1|11] with bit0 = 0
       // -------------------------
-      M_BEQ, M_BNE, M_BLT, M_BGE, M_BLTU, M_BGEU: begin
+      B_BEQ, B_BNE, B_BLT, B_BGE, B_BLTU, B_BGEU: begin
         instr[31]    = it.imm_b[12];
         instr[30:25] = it.imm_b[10:5];
         instr[24:20] = it.rs2;
@@ -264,12 +264,12 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_B;
 
         unique case (it.kind)
-          M_BEQ:  instr[14:12] = F3_BEQ;
-          M_BNE:  instr[14:12] = F3_BNE;
-          M_BLT:  instr[14:12] = F3_BLT;
-          M_BGE:  instr[14:12] = F3_BGE;
-          M_BLTU: instr[14:12] = F3_BLTU;
-          M_BGEU: instr[14:12] = F3_BGEU;
+          B_BEQ:  instr[14:12] = F3_BEQ;
+          B_BNE:  instr[14:12] = F3_BNE;
+          B_BLT:  instr[14:12] = F3_BLT;
+          B_BGE:  instr[14:12] = F3_BGE;
+          B_BLTU: instr[14:12] = F3_BLTU;
+          B_BGEU: instr[14:12] = F3_BGEU;
           default: instr[14:12] = F3_BEQ;
         endcase
       end
@@ -278,13 +278,13 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       // U-type (LUI/AUIPC)
       // instr[31:12] = imm_u, lower 12 bits are zero
       // -------------------------
-      M_LUI: begin
+      U_LUI: begin
         instr[31:12] = it.imm_u[19:0];
         instr[11:7]  = it.rd;
         instr[6:0]   = OPCODE_LUI;
       end
 
-      M_AUIPC: begin
+      U_AUIPC: begin
         instr[31:12] = it.imm_u[19:0];
         instr[11:7]  = it.rd;
         instr[6:0]   = OPCODE_AUIPC;
@@ -294,7 +294,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       // J-type (JAL immediate bit placement)
       // imm_j[20|10:1|11|19:12] with bit0 = 0
       // -------------------------
-      M_JAL: begin
+      J_JAL: begin
         instr[31]    = it.imm_j[20];
         instr[30:21] = it.imm_j[10:1];
         instr[20]    = it.imm_j[11];
