@@ -319,8 +319,8 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
     drive_raw(build_instr(it));
   endtask
 
-initial begin // Initial block to open shared memory and probe signals
+/*initial begin // Initial block to open shared memory and probe signals
 		$shm_open("shm_db");
 		$shm_probe("AS");
-	end
+	end*/
 endinterface

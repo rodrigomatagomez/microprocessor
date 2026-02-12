@@ -17,9 +17,7 @@
 //------------------------------------------------------------------------------
 module instruction_memory #(
     parameter DATA_WIDTH = 32,
-    parameter DEPTH      = 1024,
-    //parameter string MEMFILE = "../programs/hex/test1.mem"  //xcelium 
-    parameter string MEMFILE = "test1.mem" 
+    parameter DEPTH      = 1024
 )(
     input  logic [DATA_WIDTH-1:0] pc,
     output logic [DATA_WIDTH-1:0] instr
@@ -40,7 +38,6 @@ module instruction_memory #(
         for (int i = 0; i < DEPTH; i++) begin
             mem[i] = 32'h00000013; // NOP
         end
-        $readmemh(MEMFILE, mem);
     end
     // Combinational read (single-cycle IMEM)
     assign instr = mem[pc_word_idx];

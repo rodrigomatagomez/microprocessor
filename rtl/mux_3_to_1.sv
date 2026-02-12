@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-//`include "defines.svh"  
+import riscv_params_pkg::*;
 //------------------------------------------------------------------------------
 // Module: mux_3_to_1
 // Description:

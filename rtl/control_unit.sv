@@ -26,7 +26,7 @@
 //     Opcode decoding below overrides only what differs per instruction class.
 //   - Assertions for illegal/unsupported encodings can be added in a later stage.
 //------------------------------------------------------------------------------
-//`include "defines.svh"
+import riscv_params_pkg::*;
 module control_unit(
     input  logic [6:0]  opcode,             // instr[6:0]
     input  logic [2:0]  funct_3,            // instr[14:12]
@@ -66,12 +66,12 @@ module control_unit(
             // I-type ALU-immediate ops: rd <- rs1 op imm
             OPCODE_I_TYPE: begin
                 unique case (funct_3)
-                    ADDI:   cu_alu_ctrl = ALU_ADD;
-                    SLTI:   cu_alu_ctrl = ALU_SLT;
-                    SLTIU:  cu_alu_ctrl = ALU_SLTU;
-                    XORI:   cu_alu_ctrl = ALU_XOR;
-                    ORI:    cu_alu_ctrl = ALU_OR;
-                    ANDI:   cu_alu_ctrl = ALU_AND;
+                    F3_ADD_SUB:   cu_alu_ctrl = ALU_ADD;
+                    F3_SLL:   cu_alu_ctrl = ALU_SLT;
+                    F3_SLTU:  cu_alu_ctrl = ALU_SLTU;
+                    F3_XOR:   cu_alu_ctrl = ALU_XOR;
+                    F3_OR:    cu_alu_ctrl = ALU_OR;
+                    F3_AND:   cu_alu_ctrl = ALU_AND;
                     default:cu_alu_ctrl = ALU_ADD;
                 endcase
             end
@@ -85,17 +85,17 @@ module control_unit(
                 branch_taken  = zero;    // redirect request when condition is true
                 unique case (funct_3)
                     // BEQ: take branch when rs1 == rs2 (zero=1)
-                    BEQ: ;
+                    F3_BEQ: ;
                     // BNE: take branch when rs1 != rs2 (zero=1)
-                    BNE: ;
+                    F3_BNE: ;
                     // BLT: take branch when rs1 < rs2 (zero=1)
-                    BLT: ;
+                    F3_BLT: ;
                     // BGE: take branch when rs1 >= rs2 (zero=1)
-                    BGE: ;
+                    F3_BGE: ;
                     // BLTU: take branch when rs1 < rs2 (zero=1)
-                    BLTU: ;
+                    F3_BLTU: ;
                     // BGEU: take branch when rs1 >= rs2 (zero=1)
-                    BGEU: ; 
+                    F3_BGEU: ; 
                     default: begin
                         cu_alu_ctrl  = ALU_ADD;
                         branch_taken = 1'b0;
@@ -110,20 +110,20 @@ module control_unit(
                 // funct7 selects ADD/SUB and SRL/SRA families in RV32I
                 if (funct_7 == 7'b0000_000) begin
                     unique case (funct_3)
-                        ADD:   cu_alu_ctrl = ALU_ADD;
-                        SLL:   cu_alu_ctrl = ALU_SLL;
-                        SLT:   cu_alu_ctrl = ALU_SLT;
-                        SLTU:  cu_alu_ctrl = ALU_SLTU;
-                        XOR_:  cu_alu_ctrl = ALU_XOR;
-                        SRL:   cu_alu_ctrl = ALU_SRL;
-                        OR_:   cu_alu_ctrl = ALU_OR;
-                        AND_:  cu_alu_ctrl = ALU_AND;
+                        F3_ADD_SUB:   cu_alu_ctrl = ALU_ADD;
+                        F3_SLL:   cu_alu_ctrl = ALU_SLL;
+                        F3_SLT:   cu_alu_ctrl = ALU_SLT;
+                        F3_SLTU:  cu_alu_ctrl = ALU_SLTU;
+                        F3_XOR:  cu_alu_ctrl = ALU_XOR;
+                        F3_SRL_SRA:   cu_alu_ctrl = ALU_SRL;
+                        F3_OR:   cu_alu_ctrl = ALU_OR;
+                        F3_AND:  cu_alu_ctrl = ALU_AND;
                         default:cu_alu_ctrl = ALU_ADD;
                     endcase
                 end else if (funct_7 == 7'b0100_000) begin
                     unique case (funct_3)
-                        SUB:   cu_alu_ctrl = ALU_SUB;
-                        SRA:   cu_alu_ctrl = ALU_SRA;
+                        F3_ADD_SUB:   cu_alu_ctrl = ALU_SUB;
+                        F3_SRL_SRA:   cu_alu_ctrl = ALU_SRA;
                         default:cu_alu_ctrl = ALU_ADD;
                     endcase
                 end else begin
@@ -143,11 +143,11 @@ module control_unit(
             OPCODE_L_TYPE: begin
                 cu_mem_out_mux_sel = DATA_OUT_TO_PRF;
                 unique case (funct_3)
-                    LB:     ;
-                    LH:     ;
-                    LW:     ;
-                    LBU:    ;
-                    LHU:    ;
+                    F3_LB:     ;
+                    F3_LH:     ;
+                    F3_LW:     ;
+                    F3_LBU:    ;
+                    F3_LHU:    ;
                     default: prf_wr_en = 1'b1;
                 endcase  
             end
@@ -158,9 +158,9 @@ module control_unit(
                 cu_imm_sel         = IMM_S;
                 cu_data_mem_wr_en  = 1'b1;
                 unique case (funct_3)
-                    SB:     ;
-                    SH:     ;
-                    SW:     ;
+                    F3_SB:     ;
+                    F3_SH:     ;
+                    F3_SW:     ;
                     default: prf_wr_en = 1'b0;
                 endcase 
             end

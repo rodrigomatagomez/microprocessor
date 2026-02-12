@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-//`include "defines.svh"
+import riscv_params_pkg::*;
 //------------------------------------------------------------------------------
 // Module: branch
 // Description:
@@ -29,22 +29,22 @@ module branch #(parameter DATA_WIDTH_BRANCH = 32)(
     branch_taken = 1'b0;
         if (opcode == OPCODE_B_TYPE) begin 
             unique case (funct_3)
-                BEQ: begin 
+                F3_BEQ: begin 
                     branch_taken = (rs_1 == rs_2);
                 end
-                BNE: begin 
+                F3_BNE: begin 
                     branch_taken = (rs_1 != rs_2);
                 end
-                BLT: begin 
+                F3_BLT: begin 
                     branch_taken = ($signed(rs_1) < $signed(rs_2));
                 end
-                BGE: begin 
+                F3_BGE: begin 
                     branch_taken = ($signed(rs_1) >= $signed(rs_2));
                 end
-                BLTU: begin 
+                F3_BLTU: begin 
                     branch_taken = (rs_1 < rs_2);
                 end
-                BGEU: begin 
+                F3_BGEU: begin 
                     branch_taken = (rs_1 >= rs_2);
                 end
                 default: begin 
