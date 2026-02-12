@@ -75,7 +75,7 @@ module microprocessor_top_tb;
   initial begin
     tr = new();
 
-    repeat (1000) begin
+    repeat (100_000) begin
       if (!tr.randomize()) $fatal("Randomize failed");
       drive_if.drive_item(tr);
     end
@@ -83,6 +83,11 @@ module microprocessor_top_tb;
     @(posedge clk);
     $finish;
   end
+
+    initial begin // Initial block to open shared memory and probe signals
+			$shm_open("shm_db");
+			$shm_probe("ASMTR");
+	end
 
 endmodule
 

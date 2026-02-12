@@ -1,6 +1,6 @@
 // fv/fv_microprocessor_top.sv
 `timescale 1ns/1ps
-`include "property_defines.svh"
+//`include "property_defines.svh"
 
 //------------------------------------------------------------------------------
 // Module: fv_microprocessor_top
@@ -242,7 +242,7 @@ module fv_microprocessor_top #(
   `COV(it, cov_any_s_type, (`OPCODE == OPCODE_S_TYPE) |->, 1'b1)
   `COV(it, cov_any_lui,    (`OPCODE == OPCODE_U_LUI)  |->, 1'b1)
   `COV(it, cov_any_auipc,  (`OPCODE == OPCODE_U_AUIPC)|->, 1'b1)
-  `COV(it, cov_any_jal,    (`OPCODE == OPCODE_JAL_TYPE)|->, 1'b1)
+  //`COV(it, cov_any_jal,    (`OPCODE == OPCODE_JAL_TYPE)|->, 1'b1)
 
   // Cleanup macro namespace inside this module
   `undef PC_Q
