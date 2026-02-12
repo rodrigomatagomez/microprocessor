@@ -75,7 +75,7 @@ opcode_kind_enum actual_instruction;
   //  ==============================================
   //  ID/WB (Instruction Decode/Write Back)
   logic                   rf_we;
-  logic [DATA_W:0]        x0;
+  logic [DATA_W-1:0]      x0;
   logic [DIR_W-1:0]       rs1, rs2, rd;
   logic [DATA_W-1:0]      rs1_data, rs2_data;
   logic [DATA_W-1:0]      wb_data;

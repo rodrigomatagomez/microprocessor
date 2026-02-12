@@ -1,5 +1,61 @@
 `ifndef DEFINES_SVH
 `define DEFINES_SVH
+// =========================================================
+// Raíz jerárquica del DUT
+// =========================================================
+`define DUT dut
+// =========================================================
+// IF
+// =========================================================
+`define PC_Q          `DUT.pc_i.pc_out
+`define PC_NEXT       `DUT.pc_i.pc_in
+`define PC_PLUS_INC   `DUT.pc_adder_i.next_instruction
+`define BR_TAKEN      `DUT.cu_i.branch_taken
+`define BR_TARGET     `DUT.upc_next_mux_i.sel
+
+`define OPCODE        `DUT.cu_i.opcode
+`define FUNCT3        `DUT.cu_i.funct_3
+`define FUNCT7        `DUT.cu_i.funct_7
+`define INSTR_WORD    `DUT.instruction
+`define INSTR_SEL      drive_if.instr_en
+
+// =========================================================
+// ID/WB
+// =========================================================
+`define RF_WE         `DUT.prf_i.write_en
+`define X0            `DUT.prf_i.prf[0]
+`define RS1           `DUT.prf_i.read_dir1
+`define RS2           `DUT.prf_i.read_dir2
+`define RD            `DUT.prf_i.write_dir
+`define RS1_DATA      `DUT.prf_i.read_data1
+`define RS2_DATA      `DUT.prf_i.read_data2
+`define WB_DATA       `DUT.prf_i.write_data
+`define WB_SEL        `DUT.wb_mux_i.sel
+
+// =========================================================
+// IMM/EX
+// =========================================================
+`define IMM_SEL       `DUT.imm_gen_i.imm_sel
+`define IMM           `DUT.imm_gen_i.imm_out
+
+`define OP1_SEL_PC    `DUT.alu_op1_mux_i.sel
+`define OP2_SEL_IMM   `DUT.alu_op2_mux_i.sel
+
+`define ALU_CTRL      `DUT.alu_i.alucontrol
+`define ALU_OP1       `DUT.alu_i.operand1
+`define ALU_OP2       `DUT.alu_i.operand2
+`define ALU_RES       `DUT.alu_i.alu_result
+
+`define BCOND         `DUT.branch_cmp_i.branch_taken
+
+// =========================================================
+// MEM
+// =========================================================
+`define DMEM_WE       `DUT.data_mem_i.wr_en
+`define DMEM_ADDR     `DUT.data_mem_i.addr
+`define DMEM_WDATA    `DUT.data_mem_i.data_in
+`define DMEM_RDATA    `DUT.data_mem_i.data_out
+
 //////prf
 localparam DIR_WIDTH = 5;
 /////instruction memory
