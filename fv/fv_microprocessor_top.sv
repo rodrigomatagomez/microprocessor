@@ -258,7 +258,7 @@ module fv_microprocessor_top #(
       bins seen_nop = {1'b1};
     }
 
-    // Basic opcode coverage (expand with more bins later)
+    // Basic opcode coverage 
     cp_opcode: coverpoint `OPCODE iff (arst_n) {
       bins r_type = {OPCODE_R_TYPE};
       bins i_type = {OPCODE_I_TYPE};
@@ -268,11 +268,9 @@ module fv_microprocessor_top #(
       bins lui    = {OPCODE_U_LUI};
       bins auipc  = {OPCODE_U_AUIPC};
       bins jal    = {OPCODE_JAL_TYPE};
-      // If your CU collapses illegal opcodes into NOP, you can still track "others"
-      bins other  = default;
     }
 
-    // Funct3 only makes sense for some opcodes; use conditional bins
+    // Funct3 
     cp_funct3_i: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_I_TYPE)) {
       bins addi  = {F3_ADD_SUB};
       bins slti  = {F3_SLT};
@@ -293,7 +291,7 @@ module fv_microprocessor_top #(
       bins and_    = {F3_AND};
     }
 
-    // Funct7 only meaningful for R-type (SUB/SRA)
+    // Funct7 
     cp_funct7_r: coverpoint `FUNCT7 iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
       bins base = {7'b0000_000};
       bins sub  = {7'b0100_000};
@@ -310,41 +308,5 @@ module fv_microprocessor_top #(
     // Create covergroup instance
     cg_instr_i = new();
   end
-
-  /*
-  // Cleanup macro namespace inside this module
-  `undef PC_Q
-  `undef PC_NEXT
-  `undef PC_PLUS_INC
-  `undef BR_TAKEN
-  `undef BR_TARGET
-  `undef OPCODE
-  `undef FUNCT3
-  `undef FUNCT7
-  `undef INSTR_WORD
-  `undef INSTR_SEL
-  `undef RF_WE
-  `undef X0
-  `undef RS1
-  `undef RS2
-  `undef RD
-  `undef RS1_DATA
-  `undef RS2_DATA
-  `undef WB_DATA
-  `undef WB_SEL
-  `undef IMM_SEL
-  `undef IMM
-  `undef OP1_SEL_PC
-  `undef OP2_SEL_IMM
-  `undef ALU_CTRL
-  `undef ALU_OP1
-  `undef ALU_OP2
-  `undef ALU_RES
-  `undef BCOND
-  `undef DMEM_WE
-  `undef DMEM_ADDR
-  `undef DMEM_WDATA
-  `undef DMEM_RDATA
-  */
-endmodule
+  endmodule
 
