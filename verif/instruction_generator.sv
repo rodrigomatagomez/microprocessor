@@ -97,6 +97,22 @@ class riscv32_rand_instruction;
                         imm_i == '0 && imm_s == '0 && imm_b == '0 &&
                         imm_u == '0 && imm_j == '0);
   }
+  // Create a directed item for a given kind
+  function automatic void set_kind_directed(input riscv32_kind_enum k);
+    kind = k;
+
+    // Simple defaults
+    rs1   = 5'd1;
+    rs2   = 5'd2;
+    rd    = 5'd3;
+
+    imm_i = 12'sd4;
+    imm_s = 12'sd8;
+    imm_b = 13'sd4;      // multiple of 4
+    imm_u = 20'h00010;
+    imm_j = 21'sd4;      // multiple of 4
+  endfunction
+
 
 
   function string s_print();

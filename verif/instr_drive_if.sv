@@ -309,18 +309,76 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
     return instr;
   endfunction
 
+
+  // Drive one instruction for one cycle
   task automatic drive_raw(input logic [31:0] instr);
-    cb.instr_en <= 1'b1;
-    @(negedge clk);
-    cb.driven_instr <= instr;
+    // Drive aligned to the clocking block edge
+    @(cb);
+    cb.instr_en      <= 1'b1;
+    cb.driven_instr  <= instr;
+
+    // Deassert enable next cycle (optional, but keeps bus clean)
+    @(cb);
+    cb.instr_en      <= 1'b0;
+    cb.driven_instr  <= 32'h0000_0013; // keep NOP on bus when idle
   endtask
 
   task automatic drive_item(input riscv32_rand_instruction it);
     drive_raw(build_instr(it));
   endtask
 
-/*initial begin // Initial block to open shared memory and probe signals
-		$shm_open("shm_db");
-		$shm_probe("AS");
-	end*/
+  // -----------------------------------------
+  // Directed sweep: generate all legal kinds
+  // -----------------------------------------
+  task automatic drive_all_legal_once();
+    riscv32_rand_instruction it;
+
+    riscv32_kind_enum legal_kinds[$] = '{
+      M_NOP,
+      I_ADDI, U_LUI, U_AUIPC, J_JAL,
+      B_BEQ, B_BNE, B_BLT, B_BGE, B_BLTU, B_BGEU,
+      L_LB, L_LH, L_LW, L_LBU, L_LHU,
+      S_SB, S_SH, S_SW,
+      I_SLTI, I_SLTIU, I_XORI, I_ORI, I_ANDI,
+      R_ADD, R_SUB, R_SLL, R_SLT, R_SLTU, R_XOR, R_SRL, R_SRA, R_OR, R_AND
+    };
+
+    foreach (legal_kinds[i]) begin
+      it = new();
+      it.set_kind_directed(legal_kinds[i]);
+      drive_item(it);
+    end
+  endtask
+
+  // -------------------------------------------------------
+  // Illegal instruction generator
+  // -------------------------------------------------------
+  function automatic logic [31:0] build_illegal_instr();
+    logic [31:0] instr;
+    logic [6:0]  bad_opcode;
+
+    // Choose an opcode that is not in the legal set
+    bad_opcode = 7'b1111111;
+
+    instr = 32'h0;
+    instr[6:0] = bad_opcode;
+
+    // Fill other fields arbitrarily
+    instr[11:7]  = 5'd7;     // rd
+    instr[19:15] = 5'd1;     // rs1
+    instr[24:20] = 5'd2;     // rs2
+    instr[31:25] = 7'h55;
+    instr[14:12] = 3'b101;
+
+    return instr;
+  endfunction
+
+  task automatic drive_illegal_nop_test(input int unsigned n);
+    logic [31:0] illegal_instr;
+    for (int unsigned k = 0; k < n; k++) begin
+      illegal_instr = build_illegal_instr();
+      drive_raw(illegal_instr);
+    end
+  endtask
+
 endinterface

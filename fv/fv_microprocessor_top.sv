@@ -21,7 +21,7 @@ module fv_microprocessor_top #(
 
 
   // ---------------------------------------------------------------------------
-  // ORIGINAL ASSERTIONS (unchanged text & naming)
+  // ASSERTIONS  
   // ---------------------------------------------------------------------------
 
   //  =============================================================================================================
@@ -233,7 +233,7 @@ module fv_microprocessor_top #(
   )
 
   // ---------------------------------------------------------------------------
-  // Simple coverage (you can expand later)
+  // COVERS
   // ---------------------------------------------------------------------------
   `COV(it, cov_any_i_type, (`OPCODE == OPCODE_I_TYPE) |->, 1'b1)
   `COV(it, cov_any_r_type, (`OPCODE == OPCODE_R_TYPE) |->, 1'b1)
@@ -242,8 +242,76 @@ module fv_microprocessor_top #(
   `COV(it, cov_any_s_type, (`OPCODE == OPCODE_S_TYPE) |->, 1'b1)
   `COV(it, cov_any_lui,    (`OPCODE == OPCODE_U_LUI)  |->, 1'b1)
   `COV(it, cov_any_auipc,  (`OPCODE == OPCODE_U_AUIPC)|->, 1'b1)
-  //`COV(it, cov_any_jal,    (`OPCODE == OPCODE_JAL_TYPE)|->, 1'b1)
+  `COV(it, cov_any_jal,    (`OPCODE == OPCODE_JAL_TYPE)|->, 1'b1)
 
+  // ---------------------------------------------------------------------------
+  // COVERGROUPS
+  // ---------------------------------------------------------------------------
+
+
+  // Sample coverage on every cycle after reset
+  covergroup cg_instr @(posedge clk);
+    option.per_instance = 1;
+
+    // Cover that we ever saw a NOP on the instruction bus
+    cp_nop: coverpoint (`OPCODE == 7'b1111111) iff (arst_n) {
+      bins seen_nop = {1'b1};
+    }
+
+    // Basic opcode coverage (expand with more bins later)
+    cp_opcode: coverpoint `OPCODE iff (arst_n) {
+      bins r_type = {OPCODE_R_TYPE};
+      bins i_type = {OPCODE_I_TYPE};
+      bins l_type = {OPCODE_L_TYPE};
+      bins s_type = {OPCODE_S_TYPE};
+      bins b_type = {OPCODE_B_TYPE};
+      bins lui    = {OPCODE_U_LUI};
+      bins auipc  = {OPCODE_U_AUIPC};
+      bins jal    = {OPCODE_JAL_TYPE};
+      // If your CU collapses illegal opcodes into NOP, you can still track "others"
+      bins other  = default;
+    }
+
+    // Funct3 only makes sense for some opcodes; use conditional bins
+    cp_funct3_i: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_I_TYPE)) {
+      bins addi  = {F3_ADD_SUB};
+      bins slti  = {F3_SLT};
+      bins sltiu = {F3_SLTU};
+      bins xori  = {F3_XOR};
+      bins ori   = {F3_OR};
+      bins andi  = {F3_AND};
+    }
+
+    cp_funct3_r: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
+      bins add_sub = {F3_ADD_SUB};
+      bins sll     = {F3_SLL};
+      bins slt     = {F3_SLT};
+      bins sltu    = {F3_SLTU};
+      bins xor_    = {F3_XOR};
+      bins srl_sra = {F3_SRL_SRA};
+      bins or_     = {F3_OR};
+      bins and_    = {F3_AND};
+    }
+
+    // Funct7 only meaningful for R-type (SUB/SRA)
+    cp_funct7_r: coverpoint `FUNCT7 iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
+      bins base = {7'b0000_000};
+      bins sub  = {7'b0100_000};
+    }
+
+    // R-type funct3 x funct7 (ensures SUB/SRA paths get hit)
+    cx_rtype: cross cp_funct3_r, cp_funct7_r iff (arst_n && (`OPCODE == OPCODE_R_TYPE));
+
+  endgroup
+
+  cg_instr cg_instr_i;
+
+  initial begin
+    // Create covergroup instance
+    cg_instr_i = new();
+  end
+
+  /*
   // Cleanup macro namespace inside this module
   `undef PC_Q
   `undef PC_NEXT
@@ -277,6 +345,6 @@ module fv_microprocessor_top #(
   `undef DMEM_ADDR
   `undef DMEM_WDATA
   `undef DMEM_RDATA
-
+  */
 endmodule
 

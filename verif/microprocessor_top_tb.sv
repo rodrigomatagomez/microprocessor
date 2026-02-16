@@ -1,7 +1,6 @@
-// verif/microprocessor_top_tb.sv
 `timescale 1ns/1ps
 
-import riscv_params_pkg::*;
+//import riscv_params_pkg::*;
 
 module microprocessor_top_tb;
 
@@ -26,10 +25,10 @@ module microprocessor_top_tb;
   instr_drive_if #(DATA_WIDTH) drive_if (clk);
   microprocessor_if #(DATA_WIDTH, DIR_WIDTH) vif (clk);
   microprocessor_probe_bridge u_probe_bridge (.vif(vif));
+
   riscv32_rand_instruction tr;
-  
+
   instr_kind_decode_for_waves u_kind_decode (.vif(vif));
-  
 
   // ---------------------------------------------------------------------------
   // DUT
@@ -41,20 +40,17 @@ module microprocessor_top_tb;
     .driven_instr (drive_if.driven_instr)
   );
 
-  //-----------------------------------------------------------------------------
-  // CHECKER 
   // ---------------------------------------------------------------------------
-
-   fv_microprocessor_top #(
-      .DATA_W(DATA_WIDTH),
-      .DIR_W(DIR_WIDTH)
-   ) fv_microprocessor_top_i (
-      .clk   (clk),
-      .arst_n(arst_n),
-      .vif   (vif)
-);
-  
-  
+  // CHECKER
+  // ---------------------------------------------------------------------------
+  fv_microprocessor_top #(
+    .DATA_W(DATA_WIDTH),
+    .DIR_W(DIR_WIDTH)
+  ) fv_microprocessor_top_i (
+    .clk   (clk),
+    .arst_n(arst_n),
+    .vif   (vif)
+  );
 
   // ===========================================================================
   // Initialize
@@ -72,9 +68,34 @@ module microprocessor_top_tb;
   // ===========================================================================
   // TEST_PROGRAM
   // ===========================================================================
-  initial begin
+  initial begin : test_program
     tr = new();
 
+    // -------------------------------------------------------------
+    // Wait until reset is released
+    // -------------------------------------------------------------
+    wait (arst_n == 1'b1);
+    repeat (2) @(posedge clk);
+
+    // -------------------------------------------------------------
+    // 1) Directed sweep: hit every legal instruction at least once
+    // -------------------------------------------------------------
+    drive_if.drive_all_legal_once();
+
+    // Optional idle cycle
+    @(posedge clk);
+
+    // -------------------------------------------------------------
+    // 2) Illegal opcodes: must not be decoded
+    // -------------------------------------------------------------
+    drive_if.drive_illegal_nop_test(500);
+
+    // Optional idle cycle
+    @(posedge clk);
+
+    // -------------------------------------------------------------
+    // 3) Random test
+    // -------------------------------------------------------------
     repeat (100_000) begin
       if (!tr.randomize()) $fatal("Randomize failed");
       drive_if.drive_item(tr);
@@ -84,10 +105,11 @@ module microprocessor_top_tb;
     $finish;
   end
 
-    initial begin // Initial block to open shared memory and probe signals
-			$shm_open("shm_db");
-			$shm_probe("ASMTR");
-	end
-
+/*  initial begin : shm_db
+    // Initial block to open shared memory and probe signals
+    $shm_open("shm_db");
+    $shm_probe("ASMTR");
+  end
+*/
 endmodule
 
