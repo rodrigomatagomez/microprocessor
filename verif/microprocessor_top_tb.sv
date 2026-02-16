@@ -105,11 +105,11 @@ module microprocessor_top_tb;
     $finish;
   end
 
-/*  initial begin : shm_db
+  initial begin : shm_db
     // Initial block to open shared memory and probe signals
     $shm_open("shm_db");
     $shm_probe("ASMTR");
   end
-*/
+
 endmodule
 

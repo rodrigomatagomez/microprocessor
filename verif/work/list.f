@@ -17,11 +17,6 @@
 ../../rtl/control_unit.sv
 ../../rtl/microprocessor_top.sv
 # ============================ formal verification
-
-#../../fv/fv_pc_checker.sv
-#../../fv/fv_bind_pc.sv
-#../../fv/fv_prf_checker.sv
-#../../fv/fv_bind_prf.sv      
 # ============================ verification
 ../instruction_generator.sv
 ../instr_kind_decode_for_waves.sv
