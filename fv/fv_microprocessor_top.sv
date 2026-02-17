@@ -290,15 +290,52 @@ module fv_microprocessor_top #(
       bins or_     = {F3_OR};
       bins and_    = {F3_AND};
     }
+    
+    cp_funct3_b: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_B_TYPE)) {
+      bins beq =  {F3_BEQ};
+      bins bne =  {F3_BNE};
+      bins blt =  {F3_BLT};
+      bins bge =  {F3_BGE}; 
+      bins bltu = {F3_BLTU};
+      bins bgeu = {F3_BGEU};
 
+    }
+
+    cp_funct3_s: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_S_TYPE)) {
+      bins sb =  {F3_SB};
+      bins sh =  {F3_SH};
+      bins sw =  {F3_SW};
+    }
+
+    cp_funct3_l: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_L_TYPE)) {
+      bins lb  =  {F3_LB};
+      bins lh  =  {F3_LH};
+      bins lw  =  {F3_LW};
+      bins lbu =  {F3_LBU};
+      bins lhu =  {F3_LHU};
+   }
     // Funct7 
     cp_funct7_r: coverpoint `FUNCT7 iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
       bins base = {7'b0000_000};
       bins sub  = {7'b0100_000};
     }
 
-    // R-type funct3 x funct7 (ensures SUB/SRA paths get hit)
-    cx_rtype: cross cp_funct3_r, cp_funct7_r iff (arst_n && (`OPCODE == OPCODE_R_TYPE));
+    cx_rtype: cross cp_funct3_r, cp_funct7_r iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
+
+      bins add_base = binsof(cp_funct3_r.add_sub)  && binsof(cp_funct7_r.base);
+      bins add_sub  = binsof(cp_funct3_r.add_sub)  && binsof(cp_funct7_r.sub);
+      bins srl_base = binsof(cp_funct3_r.srl_sra)  && binsof(cp_funct7_r.base);
+      bins sra_sub  = binsof(cp_funct3_r.srl_sra)  && binsof(cp_funct7_r.sub);
+
+        ignore_bins ign_other_f3 =
+            binsof(cp_funct3_r.sll)  ||
+            binsof(cp_funct3_r.slt)  ||
+            binsof(cp_funct3_r.sltu) ||
+            binsof(cp_funct3_r.xor_) ||
+            binsof(cp_funct3_r.or_)  ||
+            binsof(cp_funct3_r.and_);
+    }
+
 
   endgroup
 

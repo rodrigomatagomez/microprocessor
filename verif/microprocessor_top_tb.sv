@@ -80,7 +80,7 @@ module microprocessor_top_tb;
     // -------------------------------------------------------------
     // 1) Directed sweep: hit every legal instruction at least once
     // -------------------------------------------------------------
-    drive_if.drive_all_legal_once();
+    repeat (10) drive_if.drive_all_legal_once();
 
     // Optional idle cycle
     @(posedge clk);
