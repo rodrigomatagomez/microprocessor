@@ -1,4 +1,4 @@
-testname = alfacen_noaxi_base_test
+testname = riscv32_test
 logs     = ./logs
 defines  = XCELIUM
 verb     = UVM_MEDIUM
