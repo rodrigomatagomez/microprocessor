@@ -28,10 +28,10 @@
 //------------------------------------------------------------------------------
 import riscv_params_pkg::*;
 module control_unit(
-    input  logic [6:0]  opcode,             // instr[6:0]
-    input  logic [2:0]  funct_3,            // instr[14:12]
-    input  logic [6:0]  funct_7,            // instr[31:25]
-    input  logic        zero,               // 1 when rs1 == rs2 (BEQ condition)
+    input  logic [6:0]  opcode,              // instr[6:0]
+    input  logic [2:0]  funct_3,             // instr[14:12]
+    input  logic [6:0]  funct_7,             // instr[31:25]
+    input  logic        zero,                // 1 when rs1 == rs2 (BEQ condition)
     output logic        prf_wr_en,           // register file write enable
     output logic [2:0]  cu_imm_sel,          // immediate format select (imm_gen)
     output logic [1:0]  prf_pc_mux_ctrl,     // ALU operand1 select (rs1 vs PC)
@@ -40,7 +40,8 @@ module control_unit(
     output logic [1:0]  cu_mem_out_mux_sel,  // write-back mux select (to PRF)
     output logic        cu_data_mem_wr_en,   // data memory write enable (stores)
     output logic        cu_pc_add_sel,       // PC increment select (+4 now; +2 reserved)
-    output logic        branch_taken         // PC redirect request (branch/jump)
+    output logic        branch_taken,        // PC redirect request (branch/jump)
+    output logic        mac_en               // Enable for MAC operations (MUL)
 );
 
     always_comb begin
@@ -60,19 +61,20 @@ module control_unit(
         cu_mem_out_mux_sel = ALU_TO_PRF;  // write-back = ALU result
         cu_alu_ctrl        = ALU_ADD;
         branch_taken       = 1'b0;        // default: no PC redirect
+        mac_en             = 1'b0;        //disable the MAC
 
         unique case (opcode)
 
             // I-type ALU-immediate ops: rd <- rs1 op imm
             OPCODE_I_TYPE: begin
                 unique case (funct_3)
-                    F3_ADD_SUB:   cu_alu_ctrl = ALU_ADD;
-                    F3_SLL:   cu_alu_ctrl = ALU_SLT;
-                    F3_SLTU:  cu_alu_ctrl = ALU_SLTU;
-                    F3_XOR:   cu_alu_ctrl = ALU_XOR;
-                    F3_OR:    cu_alu_ctrl = ALU_OR;
-                    F3_AND:   cu_alu_ctrl = ALU_AND;
-                    default:cu_alu_ctrl = ALU_ADD;
+                    F3_ADD_SUB_MUL:   cu_alu_ctrl = ALU_ADD;
+                    F3_SLL:           cu_alu_ctrl = ALU_SLT;
+                    F3_SLTU:          cu_alu_ctrl = ALU_SLTU;
+                    F3_XOR:           cu_alu_ctrl = ALU_XOR;
+                    F3_OR:            cu_alu_ctrl = ALU_OR;
+                    F3_AND:           cu_alu_ctrl = ALU_AND;
+                    default:          cu_alu_ctrl = ALU_ADD;
                 endcase
             end
 
@@ -110,7 +112,7 @@ module control_unit(
                 // funct7 selects ADD/SUB and SRL/SRA families in RV32I
                 if (funct_7 == 7'b0000_000) begin
                     unique case (funct_3)
-                        F3_ADD_SUB:   cu_alu_ctrl = ALU_ADD;
+                        F3_ADD_SUB_MUL:   cu_alu_ctrl = ALU_ADD;
                         F3_SLL:   cu_alu_ctrl = ALU_SLL;
                         F3_SLT:   cu_alu_ctrl = ALU_SLT;
                         F3_SLTU:  cu_alu_ctrl = ALU_SLTU;
@@ -122,10 +124,14 @@ module control_unit(
                     endcase
                 end else if (funct_7 == 7'b0100_000) begin
                     unique case (funct_3)
-                        F3_ADD_SUB:   cu_alu_ctrl = ALU_SUB;
-                        F3_SRL_SRA:   cu_alu_ctrl = ALU_SRA;
-                        default:cu_alu_ctrl = ALU_ADD;
+                        F3_ADD_SUB_MUL: cu_alu_ctrl = ALU_SUB;
+                        F3_SRL_SRA:     cu_alu_ctrl = ALU_SRA;
+                        default:        cu_alu_ctrl = ALU_ADD;
                     endcase
+                end else if (funct_7 == 7'b0000_001) begin
+                    unique case (funct_3)
+                        F3_ADD_SUB_MUL: mac_en = 1'b1;
+                        default:        mac_en 1'b0;
                 end else begin
                     cu_alu_ctrl = ALU_ADD; // unsupported funct7 -> safe default
                 end

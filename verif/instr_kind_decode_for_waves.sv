@@ -50,7 +50,8 @@ module instr_kind_decode_for_waves
     R_SRL     = 6'd31,
     R_SRA     = 6'd32,
     R_OR      = 6'd33,
-    R_AND     = 6'd34
+    R_AND     = 6'd34,
+    R_MUL     = 6'd35
   } opcode_kind_enum;
 
   // Expose this variable so it shows in waves
@@ -67,7 +68,7 @@ module instr_kind_decode_for_waves
   localparam logic [6:0] OPCODE_JAL   = 7'b1101111;
 
   // funct3 values used
-  localparam logic [2:0] F3_ADD_SUB = 3'b000;
+  localparam logic [2:0] F3_ADD_SUB_MUL = 3'b000;
   localparam logic [2:0] F3_SLL     = 3'b001;
   localparam logic [2:0] F3_SLT     = 3'b010;
   localparam logic [2:0] F3_SLTU    = 3'b011;
@@ -141,30 +142,36 @@ module instr_kind_decode_for_waves
 
         OPCODE_I: begin
           unique case (vif.cb.instruction[14:12])
-            F3_ADD_SUB: actual_instruction = I_ADDI;
-            F3_SLT:     actual_instruction = I_SLTI;
-            F3_SLTU:    actual_instruction = I_SLTIU;
-            F3_XOR:     actual_instruction = I_XORI;
-            F3_OR:      actual_instruction = I_ORI;
-            F3_AND:     actual_instruction = I_ANDI;
-            default:    actual_instruction = M_UNKNOWN;
+            F3_ADD_SUB_MUL: actual_instruction = I_ADDI;
+            F3_SLT:         actual_instruction = I_SLTI;
+            F3_SLTU:        actual_instruction = I_SLTIU;
+            F3_XOR:         actual_instruction = I_XORI;
+            F3_OR:          actual_instruction = I_ORI;
+            F3_AND:         actual_instruction = I_ANDI;
+            default:        actual_instruction = M_UNKNOWN;
           endcase
         end
 
         OPCODE_R: begin
           unique case (vif.cb.instruction[14:12])
-            F3_ADD_SUB: begin
-              if (vif.cb.instruction[31:25] == 7'b0100000) actual_instruction = R_SUB;
-              else                                         actual_instruction = R_ADD;
-            end
+            F3_ADD_SUB_MUL: begin
+              if (vif.cb.instruction[31:25] == 7'b0100_000) begin 
+                actual_instruction = R_SUB;
+              end else if (vif.cb.instruction[31:25] == 7'b0000_001) begin 
+                actual_instruction = R_MUL;
+              end else begin 
+                actual_instruction = R_ADD;
+              end
             F3_SLL:  actual_instruction = R_SLL;
             F3_SLT:  actual_instruction = R_SLT;
             F3_SLTU: actual_instruction = R_SLTU;
             F3_XOR:  actual_instruction = R_XOR;
             F3_SRL_SRA: begin
-              if (vif.cb.instruction[31:25] == 7'b0100000) actual_instruction = R_SRA;
-              else                                         actual_instruction = R_SRL;
-            end
+              if (vif.cb.instruction[31:25] == 7'b0100000) begin 
+                actual_instruction = R_SRA;
+              end else begin 
+                actual_instruction = R_SRL;
+              end
             F3_OR:   actual_instruction = R_OR;
             F3_AND:  actual_instruction = R_AND;
             default: actual_instruction = M_UNKNOWN;
