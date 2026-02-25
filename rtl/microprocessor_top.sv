@@ -35,6 +35,10 @@ module microprocessor_top (
     logic [DATA_WIDTH-1:0] pc_plus_inc;     // sequential next PC (PC + inc)
     logic                  pc_inc_sel;      // +4 vs +2 selector (future)
     logic [2:0]            pc_inc;          // increment constant (2 or 4)
+    logic                  pc_en;
+
+    logic                  mac_done;
+    logic                  mac_en;
     
     logic [DATA_WIDTH-1:0] instruction;
     logic [DATA_WIDTH-1:0] mem_instruction;           // fetched instruction
@@ -57,6 +61,7 @@ module microprocessor_top (
     program_counter pc_i (
         .clk   (clk),
         .arst_n(arst_n),
+        .pc_en (pc_en),
         .pc_in (pc_next),
         .pc_out(pc_q)
     );
@@ -90,6 +95,7 @@ module microprocessor_top (
 
     // Write-back data (selected later)
     logic [DATA_WIDTH-1:0] wb_data;
+    logic [DATA_WIDTH-1:0] operation_result;
 
     physical_register_file #(.DIR_WIDTH(DIR_WIDTH), .DATA_WIDTH(DATA_WIDTH)) prf_i (
         .clk       (clk),
@@ -98,7 +104,7 @@ module microprocessor_top (
         .read_dir1 (instruction[19:15]),   // rs1
         .read_dir2 (instruction[24:20]),   // rs2
         .write_dir (instruction[11:7]),    // rd
-        .write_data(wb_data),
+        .write_data(operation_result),
         .read_data1(rs1_data),
         .read_data2(rs2_data)
     );
@@ -201,13 +207,14 @@ module microprocessor_top (
     //--------------------------------------------------------------------------
     // Control Unit: Decode instruction -> drive control signals
     //--------------------------------------------------------------------------
-
     control_unit cu_i (
         .opcode            (instruction[6:0]),
         .funct_3           (instruction[14:12]),
         .funct_7           (instruction[31:25]),
         .zero              (b_condition_rs1_rs2),     // B condition
-
+        .mac_done          (mac_done),
+        .mac_en            (mac_en),
+        .pc_en             (pc_en),
         .prf_wr_en         (rf_we),
         .cu_imm_sel        (imm_sel),
         .prf_pc_mux_ctrl   (op1_sel_pc),
@@ -217,6 +224,25 @@ module microprocessor_top (
         .cu_data_mem_wr_en (dmem_we),
         .cu_pc_add_sel     (pc_inc_sel),
         .branch_taken      (branch_taken)
+    );
+    
+    logic [DATA_WIDTH-1:0] mac_out;
+    mac #(.RESULT_WIDTH(DATA_WIDTH), .OPERAND_WIDTH(DIR_WIDTH)) mac_i (
+      .clk(clk),
+      .arst_n(arst_n),
+      .start(mac_en),
+      .operand_1(alu_op1),
+      .operand_2(alu_op2),
+      .result(mac_out),
+      .ready(mac_done)
+    );
+
+    // MAC mux: select ALU or MAC
+    mux #(.WIDTH(DATA_WIDTH)) alu_mac_result_mux_i (
+        .in1(mac_out),     // sel=1 -> mac result 
+        .in2(wb_data),  // sel=0 -> alu result
+        .sel(mac_en),
+        .out(operation_result)
     );
     
     assign instruction = instr_en ? driven_instr : mem_instruction;

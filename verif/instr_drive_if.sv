@@ -1,15 +1,19 @@
 interface instr_drive_if #(int DATA_W = 32) (input logic clk);
 
+  // ---------------------------------------------
+  // Signals driven into the DUT
+  // ---------------------------------------------
   logic              instr_en;
   logic [DATA_W-1:0] driven_instr;
 
-  clocking cb @(posedge clk);
-    default input #1step output #1step;
-    output instr_en;
-    output driven_instr;
-  endclocking
-
-  modport driver (clocking cb, input clk);
+  // ---------------------------------------------
+  // Driver modport (direct access)
+  // ---------------------------------------------
+  modport driver (
+    input  clk,
+    output instr_en,
+    output driven_instr
+  );
 
   // -----------------------------
   // RV32I opcodes
@@ -55,8 +59,10 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
   localparam logic [6:0] F7_SUB  = 7'b0100_000;
   localparam logic [6:0] F7_SRA  = 7'b0100_000;
   localparam logic [6:0] F7_MUL  = 7'b0000_001;
+
   // -----------------------------
   // Build instruction from randomized item
+  // NOTE: This assumes riscv32_rand_instruction and riscv32_kind_enum exist.
   // -----------------------------
   function automatic logic [31:0] build_instr(input riscv32_rand_instruction it);
     logic [31:0] instr;
@@ -127,7 +133,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[31:25] = F7_BASE;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
-        instr[14:12] = F3_ADD_SUB;
+        instr[14:12] = F3_ADD_SUB_MUL;
         instr[11:7]  = it.rd;
         instr[6:0]   = OPCODE_R;
       end
@@ -141,7 +147,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[6:0]   = OPCODE_R;
       end
 
-      R_SUB: begin
+      R_MUL: begin
         instr[31:25] = F7_MUL;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
@@ -285,7 +291,6 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
 
       // -------------------------
       // U-type (LUI/AUIPC)
-      // instr[31:12] = imm_u, lower 12 bits are zero
       // -------------------------
       U_LUI: begin
         instr[31:12] = it.imm_u[19:0];
@@ -300,8 +305,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       end
 
       // -------------------------
-      // J-type (JAL immediate bit placement)
-      // imm_j[20|10:1|11|19:12] with bit0 = 0
+      // J-type (JAL)
       // -------------------------
       J_JAL: begin
         instr[31]    = it.imm_j[20];
@@ -318,18 +322,42 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
     return instr;
   endfunction
 
+  // -------------------------------------------------------
+  // Illegal instruction generator
+  // -------------------------------------------------------
+  function automatic logic [31:0] build_illegal_instr();
+    logic [31:0] instr;
+    logic [6:0]  bad_opcode;
 
-  // Drive one instruction for one cycle
+    // Choose an opcode that is not in the legal set
+    bad_opcode = 7'b1111111;
+
+    instr = 32'h0;
+    instr[6:0] = bad_opcode;
+
+    // Fill other fields arbitrarily
+    instr[11:7]  = 5'd7;     // rd
+    instr[19:15] = 5'd1;     // rs1
+    instr[24:20] = 5'd2;     // rs2
+    instr[31:25] = 7'h55;
+    instr[14:12] = 3'b101;
+
+    return instr;
+  endfunction
+
+  // -------------------------------------------------------
+  // Drive one instruction for one cycle (posedge-to-posedge)
+  // -------------------------------------------------------
   task automatic drive_raw(input logic [31:0] instr);
-    // Drive aligned to the clocking block edge
-    @(cb);
-    cb.instr_en      <= 1'b1;
-    cb.driven_instr  <= instr;
+    // Drive at posedge (DUT will see it for the next posedge sample)
+    @(posedge clk);
+    instr_en     = 1'b1;
+    driven_instr = instr;
 
     // Deassert enable next cycle
-    @(cb);
-    cb.instr_en      <= 1'b0;
-    cb.driven_instr  <= 32'h0000_0013; // keep NOP on bus when idle
+    @(posedge clk);
+    instr_en     = 1'b0;
+    driven_instr = 32'h0000_0013; // keep NOP on bus when idle
   endtask
 
   task automatic drive_item(input riscv32_rand_instruction it);
@@ -360,28 +388,8 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
   endtask
 
   // -------------------------------------------------------
-  // Illegal instruction generator
+  // Drive illegal instruction test
   // -------------------------------------------------------
-  function automatic logic [31:0] build_illegal_instr();
-    logic [31:0] instr;
-    logic [6:0]  bad_opcode;
-
-    // Choose an opcode that is not in the legal set
-    bad_opcode = 7'b1111111;
-
-    instr = 32'h0;
-    instr[6:0] = bad_opcode;
-
-    // Fill other fields arbitrarily
-    instr[11:7]  = 5'd7;     // rd
-    instr[19:15] = 5'd1;     // rs1
-    instr[24:20] = 5'd2;     // rs2
-    instr[31:25] = 7'h55;
-    instr[14:12] = 3'b101;
-
-    return instr;
-  endfunction
-
   task automatic drive_illegal_nop_test(input int unsigned n);
     logic [31:0] illegal_instr;
     for (int unsigned k = 0; k < n; k++) begin

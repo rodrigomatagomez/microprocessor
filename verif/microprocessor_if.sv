@@ -1,9 +1,5 @@
 interface microprocessor_if #(int DATA_W = 32, int DIR_W = 5) (input logic clk);
 
-  // ===============================================
-  // SIGNALS
-  // ===============================================
-
   // IF (Instruction Fetch)
   logic [DATA_W-1:0]  pc_q;
   logic [DATA_W-1:0]  pc_next;
@@ -41,33 +37,28 @@ interface microprocessor_if #(int DATA_W = 32, int DIR_W = 5) (input logic clk);
   logic [DATA_W-1:0]  dmem_wdata;
   logic [DATA_W-1:0]  dmem_rdata;
 
-  // ===============================================
-  // Clocking block (monitor sampling)
-  // ===============================================
-  clocking cb @(posedge clk);
-    default input #1step output #1step;
+  // Monitor modport (direct signal access)
+  modport monitor (
+    input clk,
 
-    input pc_q, pc_next, pc_plus_inc;
-    input branch_taken, branch_target, instruction, instruction_sel;
+    input pc_q, pc_next, pc_plus_inc,
+    input branch_taken, branch_target,
+    input instruction_sel, instruction,
 
-    input opcode, funct_3, funct_7;
+    input opcode, funct_3, funct_7,
 
-    input rf_we, rs1, rs2, rd, x0;
-    input rs1_data, rs2_data, wb_data, wb_sel;
+    input rf_we, rs1, rs2, rd, x0,
+    input rs1_data, rs2_data, wb_data, wb_sel,
 
-    input imm_sel, imm;
-    input op1_sel_pc, op2_sel_imm;
-    input alu_ctrl, alu_op1, alu_op2, alu_result;
-    input b_condition_rs1_rs2;
+    input imm_sel, imm,
+    input op1_sel_pc, op2_sel_imm,
+    input alu_ctrl, alu_op1, alu_op2, alu_result,
+    input b_condition_rs1_rs2,
 
-    input dmem_we, dmem_addr, dmem_wdata, dmem_rdata;
-  endclocking
-
-  // Monitor modport (uses clocking block)
-  modport monitor (clocking cb);
+    input dmem_we, dmem_addr, dmem_wdata, dmem_rdata
+  );
 
   // Probe modport (bridge drives these signals into the interface)
-  // NOTE: Do not redeclare clk here; clk is already the interface port.
   modport probe (
     output pc_q, pc_next, pc_plus_inc,
     output branch_taken, branch_target,
@@ -87,4 +78,3 @@ interface microprocessor_if #(int DATA_W = 32, int DIR_W = 5) (input logic clk);
   );
 
 endinterface
-

@@ -1,0 +1,28 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Tue Feb 24 17:13:52 2026
+# Process ID         : 20130
+# Current directory  : /home/rodrigo_mata/Documents/git/microprocessor/verif/vivado_work
+# Command line       : xsim -source {xsim.dir/work.microprocessor_top_tb.wdb/xsim_script.tcl}
+# Log file           : /home/rodrigo_mata/Documents/git/microprocessor/verif/vivado_work/xsim.log
+# Journal file       : /home/rodrigo_mata/Documents/git/microprocessor/verif/vivado_work/xsim.jou
+# Running On         : RodrigoMata
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.4 LTS
+# Processor Detail   : 12th Gen Intel(R) Core(TM) i5-12500H
+# CPU Frequency      : 631.198 MHz
+# CPU Physical cores : 12
+# CPU Logical cores  : 16
+# Host memory        : 16364 MB
+# Swap memory        : 32767 MB
+# Total Virtual      : 49132 MB
+# Available Virtual  : 45351 MB
+#-----------------------------------------------------------
+start_gui
+source xsim.dir/work.microprocessor_top_tb.wdb/xsim_script.tcl
+open_wave_config /home/rodrigo_mata/Documents/git/microprocessor/verif/vivado_work/work.microprocessor_top_tb.wcfg
+save_wave_config {/home/rodrigo_mata/Documents/git/microprocessor/verif/vivado_work/work.microprocessor_top_tb.wcfg}
+close_sim

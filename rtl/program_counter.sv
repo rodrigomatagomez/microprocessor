@@ -17,17 +17,20 @@ module program_counter #(
 	parameter DATA_WIDTH = 32,
 	parameter [DATA_WIDTH-1:0] RESET_PC = '0
 )(
-	input logic clk,
-	input logic arst_n,
-	input logic [DATA_WIDTH - 1:0] pc_in,
+	input logic                     clk,
+	input logic                     arst_n,
+  input logic                     pc_en,
+	input logic  [DATA_WIDTH - 1:0] pc_in,
 	output logic [DATA_WIDTH - 1:0] pc_out
 );
     //Secuential logic 
     always_ff @(posedge clk, negedge arst_n) begin
         if (!arst_n) begin
             pc_out <= RESET_PC; //Reset PC to boot address
-        end else  begin   
+        end else if (pc_en)  begin   
             pc_out <= pc_in;
-        end   
+        end else begin 
+            pc_out <= pc_out;
+        end
     end 
 endmodule

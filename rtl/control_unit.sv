@@ -32,6 +32,7 @@ module control_unit(
     input  logic [2:0]  funct_3,             // instr[14:12]
     input  logic [6:0]  funct_7,             // instr[31:25]
     input  logic        zero,                // 1 when rs1 == rs2 (BEQ condition)
+    input  logic        mac_done,            // 1 when mac has finished the operation  
     output logic        prf_wr_en,           // register file write enable
     output logic [2:0]  cu_imm_sel,          // immediate format select (imm_gen)
     output logic [1:0]  prf_pc_mux_ctrl,     // ALU operand1 select (rs1 vs PC)
@@ -41,7 +42,9 @@ module control_unit(
     output logic        cu_data_mem_wr_en,   // data memory write enable (stores)
     output logic        cu_pc_add_sel,       // PC increment select (+4 now; +2 reserved)
     output logic        branch_taken,        // PC redirect request (branch/jump)
-    output logic        mac_en               // Enable for MAC operations (MUL)
+    output logic        mac_en,              // Enable for MAC operations (MUL)
+    output logic        pc_en                // Run/stop the count in MUL operations
+
 );
 
     always_comb begin
@@ -55,13 +58,14 @@ module control_unit(
         prf_wr_en          = 1'b1;
         cu_data_mem_wr_en  = 1'b0;
         cu_imm_sel         = IMM_I;
-        prf_pc_mux_ctrl    = 2'b10;        // operand1 = rs1
+        prf_pc_mux_ctrl    = 2'b10;       // operand1 = rs1
         prf_imm_mux_ctrl   = 1'b1;        // operand2 = imm
         cu_pc_add_sel      = 1'b0;        // +4 in RV32; +2 reserved for future compressed support
         cu_mem_out_mux_sel = ALU_TO_PRF;  // write-back = ALU result
         cu_alu_ctrl        = ALU_ADD;
         branch_taken       = 1'b0;        // default: no PC redirect
-        mac_en             = 1'b0;        //disable the MAC
+        mac_en             = 1'b0;        // disable the MAC
+        pc_en              = 1'b1;        // enable pc count 
 
         unique case (opcode)
 
@@ -130,10 +134,21 @@ module control_unit(
                     endcase
                 end else if (funct_7 == 7'b0000_001) begin
                     unique case (funct_3)
-                        F3_ADD_SUB_MUL: mac_en = 1'b1;
-                        default:        mac_en 1'b0;
-                end else begin
-                    cu_alu_ctrl = ALU_ADD; // unsupported funct7 -> safe default
+                    F3_ADD_SUB_MUL: begin
+                      if (mac_done) begin 
+                        pc_en  = 1'b1;
+                        mac_en = 1'b0;
+                      end else begin 
+                        pc_en  = 1'b0;
+                        mac_en = 1'b1;
+                      end
+                    end
+                    default: begin 
+                      mac_en = 1'b0;
+                      pc_en  = 1'b1;
+                      cu_alu_ctrl = ALU_ADD;
+                    end
+                    endcase    
                 end
             end
 
