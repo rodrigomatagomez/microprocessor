@@ -24,14 +24,14 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
   localparam logic [6:0] OPCODE_JAL   = 7'b1101111;
 
   // funct3 constants
-  localparam logic [2:0] F3_ADD_SUB_MUL = 3'b000;
-  localparam logic [2:0] F3_SLL         = 3'b001;
-  localparam logic [2:0] F3_SLT         = 3'b010;
-  localparam logic [2:0] F3_SLTU        = 3'b011;
-  localparam logic [2:0] F3_XOR         = 3'b100;
-  localparam logic [2:0] F3_SRL_SRA     = 3'b101;
-  localparam logic [2:0] F3_OR          = 3'b110;
-  localparam logic [2:0] F3_AND         = 3'b111;
+  localparam logic [2:0] F3_ADD_SUB = 3'b000;
+  localparam logic [2:0] F3_SLL     = 3'b001;
+  localparam logic [2:0] F3_SLT     = 3'b010;
+  localparam logic [2:0] F3_SLTU    = 3'b011;
+  localparam logic [2:0] F3_XOR     = 3'b100;
+  localparam logic [2:0] F3_SRL_SRA = 3'b101;
+  localparam logic [2:0] F3_OR      = 3'b110;
+  localparam logic [2:0] F3_AND     = 3'b111;
 
   localparam logic [2:0] F3_BEQ  = 3'b000;
   localparam logic [2:0] F3_BNE  = 3'b001;
@@ -51,10 +51,10 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
   localparam logic [2:0] F3_SW  = 3'b010;
 
   // funct7 constants
-  localparam logic [6:0] F7_BASE = 7'b0000_000;
-  localparam logic [6:0] F7_SUB  = 7'b0100_000;
-  localparam logic [6:0] F7_SRA  = 7'b0100_000;
-  localparam logic [6:0] F7_MUL  = 7'b0000_001;
+  localparam logic [6:0] F7_BASE = 7'b0000000;
+  localparam logic [6:0] F7_SUB  = 7'b0100000;
+  localparam logic [6:0] F7_SRA  = 7'b0100000;
+
   // -----------------------------
   // Build instruction from randomized item
   // -----------------------------
@@ -136,16 +136,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[31:25] = F7_SUB;
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
-        instr[14:12] = F3_ADD_SUB_MUL;
-        instr[11:7]  = it.rd;
-        instr[6:0]   = OPCODE_R;
-      end
-
-      R_SUB: begin
-        instr[31:25] = F7_MUL;
-        instr[24:20] = it.rs2;
-        instr[19:15] = it.rs1;
-        instr[14:12] = F3_ADD_SUB_MUL;
+        instr[14:12] = F3_ADD_SUB;
         instr[11:7]  = it.rd;
         instr[6:0]   = OPCODE_R;
       end
@@ -326,7 +317,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
     cb.instr_en      <= 1'b1;
     cb.driven_instr  <= instr;
 
-    // Deassert enable next cycle
+    // Deassert enable next cycle (optional, but keeps bus clean)
     @(cb);
     cb.instr_en      <= 1'b0;
     cb.driven_instr  <= 32'h0000_0013; // keep NOP on bus when idle
@@ -349,7 +340,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       L_LB, L_LH, L_LW, L_LBU, L_LHU,
       S_SB, S_SH, S_SW,
       I_SLTI, I_SLTIU, I_XORI, I_ORI, I_ANDI,
-      R_ADD, R_SUB, R_MUL, R_SLL, R_SLT, R_SLTU, R_XOR, R_SRL, R_SRA, R_OR, R_AND
+      R_ADD, R_SUB, R_SLL, R_SLT, R_SLTU, R_XOR, R_SRL, R_SRA, R_OR, R_AND
     };
 
     foreach (legal_kinds[i]) begin

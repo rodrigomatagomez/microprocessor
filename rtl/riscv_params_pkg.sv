@@ -27,14 +27,14 @@ package riscv_params_pkg;
   // -----------------------------
   // funct3 (grouped)
   // -----------------------------
-  localparam logic [2:0] F3_ADD_SUB_MUL = 3'b000;
-  localparam logic [2:0] F3_SLL         = 3'b001;
-  localparam logic [2:0] F3_SLT         = 3'b010;
-  localparam logic [2:0] F3_SLTU        = 3'b011;
-  localparam logic [2:0] F3_XOR         = 3'b100;
-  localparam logic [2:0] F3_SRL_SRA     = 3'b101;
-  localparam logic [2:0] F3_OR          = 3'b110;
-  localparam logic [2:0] F3_AND         = 3'b111;
+  localparam logic [2:0] F3_ADD_SUB = 3'b000;
+  localparam logic [2:0] F3_SLL     = 3'b001;
+  localparam logic [2:0] F3_SLT     = 3'b010;
+  localparam logic [2:0] F3_SLTU    = 3'b011;
+  localparam logic [2:0] F3_XOR     = 3'b100;
+  localparam logic [2:0] F3_SRL_SRA = 3'b101;
+  localparam logic [2:0] F3_OR      = 3'b110;
+  localparam logic [2:0] F3_AND     = 3'b111;
 
   localparam logic [2:0] F3_BEQ     = 3'b000;
   localparam logic [2:0] F3_BNE     = 3'b001;
@@ -52,7 +52,6 @@ package riscv_params_pkg;
   localparam logic [2:0] F3_SB      = 3'b000;
   localparam logic [2:0] F3_SH      = 3'b001;
   localparam logic [2:0] F3_SW      = 3'b010;
-
 
   // -----------------------------
   // ALU control encodings

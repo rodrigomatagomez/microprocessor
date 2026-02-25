@@ -58,7 +58,7 @@ module fv_microprocessor_top #(
   // =========================================================
 
   `AST(it, addi_result,
-    ((`OPCODE == OPCODE_I_TYPE) && (`FUNCT3 == F3_ADD_SUB_MUL)) |->,
+    ((`OPCODE == OPCODE_I_TYPE) && (`FUNCT3 == F3_ADD_SUB)) |->,
     (`WB_DATA == (`ALU_OP1 + `ALU_OP2))
   )
 
@@ -94,12 +94,12 @@ module fv_microprocessor_top #(
   //  ==========================================================
 
   `AST(it, sub,
-      ((`OPCODE == OPCODE_R_TYPE) && (`FUNCT3 == F3_ADD_SUB_MUL) && (`FUNCT7 == 7'b0100_000)) |->,
+      ((`OPCODE == OPCODE_R_TYPE) && (`FUNCT3 == F3_ADD_SUB) && (`FUNCT7 == 7'b0100_000)) |->,
       (`WB_DATA == (`RS1_DATA - `RS2_DATA))
   )
 
   `AST(it, add,
-      ((`OPCODE == OPCODE_R_TYPE) && (`FUNCT3 == F3_ADD_SUB_MUL) && (`FUNCT7 == 7'b0000_000)) |->,
+      ((`OPCODE == OPCODE_R_TYPE) && (`FUNCT3 == F3_ADD_SUB) && (`FUNCT7 == 7'b0000_000)) |->,
       (`WB_DATA == (`RS1_DATA + `RS2_DATA))
   )
 
@@ -272,7 +272,7 @@ module fv_microprocessor_top #(
 
     // Funct3 
     cp_funct3_i: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_I_TYPE)) {
-      bins addi  = {F3_ADD_SUB_MUL};
+      bins addi  = {F3_ADD_SUB};
       bins slti  = {F3_SLT};
       bins sltiu = {F3_SLTU};
       bins xori  = {F3_XOR};
@@ -281,14 +281,14 @@ module fv_microprocessor_top #(
     }
 
     cp_funct3_r: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
-      bins add_sub_mul = {F3_ADD_SUB_MUL};
-      bins sll         = {F3_SLL};
-      bins slt         = {F3_SLT};
-      bins sltu        = {F3_SLTU};
-      bins xor_        = {F3_XOR};
-      bins srl_sra     = {F3_SRL_SRA};
-      bins or_         = {F3_OR};
-      bins and_        = {F3_AND};
+      bins add_sub = {F3_ADD_SUB};
+      bins sll     = {F3_SLL};
+      bins slt     = {F3_SLT};
+      bins sltu    = {F3_SLTU};
+      bins xor_    = {F3_XOR};
+      bins srl_sra = {F3_SRL_SRA};
+      bins or_     = {F3_OR};
+      bins and_    = {F3_AND};
     }
     
     cp_funct3_b: coverpoint `FUNCT3 iff (arst_n && (`OPCODE == OPCODE_B_TYPE)) {
@@ -318,14 +318,12 @@ module fv_microprocessor_top #(
     cp_funct7_r: coverpoint `FUNCT7 iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
       bins base = {7'b0000_000};
       bins sub  = {7'b0100_000};
-      bins mul  = {7'b0000_001};
     }
 
     cx_rtype: cross cp_funct3_r, cp_funct7_r iff (arst_n && (`OPCODE == OPCODE_R_TYPE)) {
 
-      bins f7_add   = binsof(cp_funct3_r.add_sub_mul)  && binsof(cp_funct7_r.base);
-      bins f7_sub   = binsof(cp_funct3_r.add_sub_mul)  && binsof(cp_funct7_r.sub);
-      bins f7_mul   = binsof(cp_funct3_r.add_sub_mul)  && binsof(cp_funct7_r.mul);
+      bins add_base = binsof(cp_funct3_r.add_sub)  && binsof(cp_funct7_r.base);
+      bins add_sub  = binsof(cp_funct3_r.add_sub)  && binsof(cp_funct7_r.sub);
       bins srl_base = binsof(cp_funct3_r.srl_sra)  && binsof(cp_funct7_r.base);
       bins sra_sub  = binsof(cp_funct3_r.srl_sra)  && binsof(cp_funct7_r.sub);
 
