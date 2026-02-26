@@ -15,20 +15,25 @@ set RTL_DIR "../rtl"
 set FV_DIR  "."
 
 foreach f {
-  defines.svh
-  program_counter.sv
-  plus_4_or_2_mux.sv
-  adder.sv
-  instruction_memory.sv
-  physical_register_file.sv
-  mux.sv
-  alu.sv
-  data_memory.sv
-  imm_gen.sv
-  control_unit.sv
-  branch.sv
-  mux_3_to_1.sv
-  microprocessor_top.sv
+# ============================ pckg, svh
+riscv_params_pkg.sv
+#property_defines.svh
+# ============================ rtl
+mux.sv
+mux_operand_1.sv
+program_counter.sv
+plus_4_or_2_mux.sv
+adder.sv
+instruction_memory.sv
+physical_register_file.sv
+imm_gen.sv
+alu.sv
+branch.sv
+data_memory.sv
+mux_3_to_1.sv
+control_unit.sv
+microprocessor_top.sv
+
 } {
   eval analyze -sv $RTL_DIR/$f
 }
