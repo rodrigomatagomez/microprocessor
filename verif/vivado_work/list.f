@@ -15,23 +15,7 @@
 ../../rtl/data_memory.sv
 ../../rtl/mux_3_to_1.sv
 ../../rtl/control_unit.sv
-# ========================== mac
-../../mac_israel_dd2/rtl/accumulator_unit.sv
-../../mac_israel_dd2/rtl/adder_40bit.sv
-../../mac_israel_dd2/rtl/booth_datapath.sv
-../../mac_israel_dd2/rtl/booth_fsm.sv
-../../mac_israel_dd2/rtl/booth_multiplier.sv
-../../mac_israel_dd2/rtl/mac_top.sv
-../../rtl/mac.sv
 #==============================
 ../../rtl/microprocessor_top.sv
-# ============================ formal verification
-
 # ============================ verification
-../instruction_generator.sv
-../instr_kind_decode_for_waves.sv
-../instr_drive_if.sv
-../microprocessor_if.sv
-../microprocessor_probe_bridge.sv
-#../../fv/fv_microprocessor_top.sv
 ../microprocessor_top_tb.sv
