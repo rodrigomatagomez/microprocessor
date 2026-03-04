@@ -29,8 +29,6 @@ module program_counter #(
             pc_out <= RESET_PC; //Reset PC to boot address
         end else if (pc_en)  begin   
             pc_out <= pc_in;
-        end else begin 
-            pc_out <= pc_out;
-        end
-    end 
+       end
+    end
 endmodule

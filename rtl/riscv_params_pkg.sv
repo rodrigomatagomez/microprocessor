@@ -84,6 +84,7 @@ package riscv_params_pkg;
   localparam logic [1:0] ALU_TO_PRF         = 2'b00;
   localparam logic [1:0] DATA_OUT_TO_PRF    = 2'b01;
   localparam logic [1:0] INSTRUCTION_TO_PRF = 2'b10;
+  localparam logic [1:0] MAC_TO_PRF         = 2'b11;
 
   // -----------------------------
   // PC add select

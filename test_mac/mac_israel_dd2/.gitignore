@@ -1,0 +1,48 @@
+# --- Basura de Vivado (Local Ubuntu) ---
+xsim.dir/
+.Xil/
+*.log
+*.jou
+*.pb
+*.wdb
+*.vdi
+*.str
+*.vcd
+# Basura de Vivado
+*.log
+*.jou
+*.pb
+*.wdb
+*.vcd
+.Xil/
+xsim.dir/
+verif/vivado_work/logs/
+
+# --- Basura de Cadence/Xcelium (Servidor) ---
+xcelium.d/
+xrun.log
+xrun.history
+SimVision/
+*.shm/
+dsn/
+*.trn
+*.dsn
+
+# --- Archivos de Ondas y Logs generales ---
+*.vcd
+*.bak
+*.old
+list.f.bak
+
+# --- Ignorar reportes de Sintesis y Vivado ---
+*.dcp
+*.jou
+*.log
+*.pb
+*.wdb
+*.vcd
+*_report.txt
+xsim.dir/
+.Xil/
+verif/vivado_work/logs/
+verif/work/logs/

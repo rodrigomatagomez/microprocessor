@@ -23,6 +23,7 @@ module microprocessor_top (
     input logic                    arst_n,
     input logic                    instr_en,
     input logic [DATA_WIDTH-1:0]   driven_instr
+
 );
 
 
@@ -35,7 +36,7 @@ module microprocessor_top (
     logic [DATA_WIDTH-1:0] pc_plus_inc;     // sequential next PC (PC + inc)
     logic                  pc_inc_sel;      // +4 vs +2 selector (future)
     logic [2:0]            pc_inc;          // increment constant (2 or 4)
-    
+    logic                  pc_en;    
     logic [DATA_WIDTH-1:0] instruction;
     logic [DATA_WIDTH-1:0] mem_instruction;           // fetched instruction
 
@@ -57,6 +58,7 @@ module microprocessor_top (
     program_counter pc_i (
         .clk   (clk),
         .arst_n(arst_n),
+        .pc_en(pc_en),
         .pc_in (pc_next),
         .pc_out(pc_q)
     );
@@ -89,6 +91,7 @@ module microprocessor_top (
     logic [DATA_WIDTH-1:0] rs2_data;
 
     // Write-back data (selected later)
+    logic [DATA_WIDTH-1:0] mac_result;
     logic [DATA_WIDTH-1:0] wb_data;
 
     physical_register_file #(.DIR_WIDTH(DIR_WIDTH), .DATA_WIDTH(DATA_WIDTH)) prf_i (
@@ -194,6 +197,7 @@ module microprocessor_top (
         .data_out_to_pc   (pc_plus_inc),  // PC+4 (link address)
         .alu_to_mem_addr  (alu_result),   // ALU result
         .data_out_to_mux  (dmem_rdata),   // memory read data
+        .mac_to_prf       (mac_result),
         .sel              (wb_sel),
         .data_out         (wb_data)
     );
@@ -201,13 +205,16 @@ module microprocessor_top (
     //--------------------------------------------------------------------------
     // Control Unit: Decode instruction -> drive control signals
     //--------------------------------------------------------------------------
+    
+    logic mac_en;
 
     control_unit cu_i (
         .opcode            (instruction[6:0]),
         .funct_3           (instruction[14:12]),
         .funct_7           (instruction[31:25]),
         .zero              (b_condition_rs1_rs2),     // B condition
-
+        
+        .pc_en             (pc_en),
         .prf_wr_en         (rf_we),
         .cu_imm_sel        (imm_sel),
         .prf_pc_mux_ctrl   (op1_sel_pc),
@@ -216,9 +223,27 @@ module microprocessor_top (
         .cu_mem_out_mux_sel(wb_sel),
         .cu_data_mem_wr_en (dmem_we),
         .cu_pc_add_sel     (pc_inc_sel),
-        .branch_taken      (branch_taken)
+        .branch_taken      (branch_taken),
+
+        //MUL signlas
+        .mac_en            (mac_en),
+        .mac_done          (mac_done)  
     );
-    
+
+    //---------------------------------------------------------------------------
+    // MAC for MUL operations
+    // --------------------------------------------------------------------------
+
+    mac_top mac_top_i (
+      .clk(clk),
+      .rst_n(arst_n),
+      .start(mac_en),
+      .m_in(alu_op1),
+      .q_in(alu_op2),
+      .product(mac_result),
+      .ready(mac_done)
+    );
+
     assign instruction = instr_en ? driven_instr : mem_instruction;
     
 endmodule

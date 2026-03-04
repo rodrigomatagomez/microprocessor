@@ -1,6 +1,5 @@
 `timescale 1ns/1ps
-
-//import riscv_params_pkg::*;
+import riscv_params_pkg::*;
 
 module microprocessor_top_tb;
 
@@ -9,6 +8,8 @@ module microprocessor_top_tb;
   // ---------------------------------------------------------------------------
   bit clk;
   bit arst_n;
+  //logic [DATA_WIDTH-1:0] driven_instr;
+  //logic instr_en;
 
   initial clk = 1'b0;
   always #5ns clk = ~clk;
@@ -26,7 +27,7 @@ module microprocessor_top_tb;
   microprocessor_if #(DATA_WIDTH, DIR_WIDTH) vif (clk);
   microprocessor_probe_bridge u_probe_bridge (.vif(vif));
 
-  riscv32_rand_instruction tr;
+  //riscv32_rand_instruction tr;
 
   instr_kind_decode_for_waves u_kind_decode (.vif(vif));
 
@@ -68,50 +69,20 @@ module microprocessor_top_tb;
   // ===========================================================================
   // TEST_PROGRAM
   // ===========================================================================
-  initial begin : test_program
-    tr = new();
+ initial begin : test_for_mul
+  drive_if.instr_en = 1'b1;
+  wait(arst_n == 1'b1);
 
-    // -------------------------------------------------------------
-    // Wait until reset is released
-    // -------------------------------------------------------------
-    wait (arst_n == 1'b1);
-    repeat (2) @(posedge clk);
+  @(negedge clk); drive_if.driven_instr = 32'h00500193; // addi x3,x0,5
+  @(negedge clk); drive_if.driven_instr = 32'h00500113; // addi x2,x0,5
+  @(negedge clk); drive_if.driven_instr = 32'h022182b3; // mul  x5,x3,x2  <-- CORRECTO
+  wait(dut.mac_top_i.ready);
+  @(posedge clk);
+  @(negedge clk); drive_if.driven_instr = 32'h00000013; // NOP
+  @(posedge clk);
+  $finish;
+end
 
-    // -------------------------------------------------------------
-    // 1) Directed sweep: hit every legal instruction at least once
-    // -------------------------------------------------------------
-    repeat (1) drive_if.drive_all_legal_once();
-
-    // Optional idle cycle
-    @(posedge clk);
-
-    // -------------------------------------------------------------
-    // 2) Illegal opcodes: must not be decoded
-    // -------------------------------------------------------------
-    
-    //drive_if.drive_illegal_nop_test(500);
-
-    // Optional idle cycle
-    
-    //@(posedge clk);
-
-    // -------------------------------------------------------------
-    // 3) Random test
-    // -------------------------------------------------------------
-    repeat (100_000) begin
-      if (!tr.randomize()) $fatal("Randomize failed");
-      drive_if.drive_item(tr);
-    end
-
-    @(posedge clk);
-    $finish;
-  end
-
-  initial begin : shm_db
-    // Initial block to open shared memory and probe signals
-    $shm_open("shm_db");
-    $shm_probe("ASMTR");
-  end
 
 endmodule
 

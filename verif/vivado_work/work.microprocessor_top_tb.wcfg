@@ -5,22 +5,22 @@
    <db_ref_list>
       <db_ref path="work.microprocessor_top_tb.wdb" id="1">
          <top_modules>
-            <top_module name="\$unit_riscv_params_pkg_sv_904980050 " />
+            <top_module name="\$unit_riscv_params_pkg_sv_3980964471 " />
             <top_module name="microprocessor_top_tb" />
             <top_module name="riscv_params_pkg" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="4,980.500 ns"></ZoomStartTime>
-      <ZoomEndTime time="5,273.901 ns"></ZoomEndTime>
-      <Cursor1Time time="5,225.000 ns"></Cursor1Time>
+      <ZoomStartTime time="222.873 ns"></ZoomStartTime>
+      <ZoomEndTime time="240.594 ns"></ZoomEndTime>
+      <Cursor1Time time="233.753 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="242"></NameColumnWidth>
-      <ValueColumnWidth column_width="70"></ValueColumnWidth>
+      <NameColumnWidth column_width="264"></NameColumnWidth>
+      <ValueColumnWidth column_width="60"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="33" />
+   <WVObjectSize size="37" />
    <wvobject type="logic" fp_name="/microprocessor_top_tb/vif/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -45,25 +45,41 @@
       <obj_property name="label">INSTRUCTION</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/dut/instr_en">
+      <obj_property name="ElementShortName">instr_en</obj_property>
+      <obj_property name="ObjectShortName">instr_en</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/microprocessor_top_tb/u_kind_decode/actual_instruction">
       <obj_property name="ElementShortName">actual_instruction[5:0]</obj_property>
       <obj_property name="ObjectShortName">actual_instruction[5:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/microprocessor_top_tb/vif/instruction">
-      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
-      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/drive_if/driven_instr">
+      <obj_property name="ElementShortName">driven_instr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">driven_instr[31:0]</obj_property>
    </wvobject>
    <wvobject fp_name="divider323" type="divider">
       <obj_property name="label">PRF</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/dut/prf_i/write_en">
+      <obj_property name="ElementShortName">write_en</obj_property>
+      <obj_property name="ObjectShortName">write_en</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/microprocessor_top_tb/u_probe_bridge/vif/x0">
       <obj_property name="ElementShortName">x0[31:0]</obj_property>
       <obj_property name="ObjectShortName">x0[31:0]</obj_property>
    </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/prf_i/prf">
+      <obj_property name="ElementShortName">prf[0:31][31:0]</obj_property>
+      <obj_property name="ObjectShortName">prf[0:31][31:0]</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/microprocessor_top_tb/u_probe_bridge/vif/wb_data">
       <obj_property name="ElementShortName">wb_data[31:0]</obj_property>
       <obj_property name="ObjectShortName">wb_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/prf_i/write_dir">
+      <obj_property name="ElementShortName">write_dir[4:0]</obj_property>
+      <obj_property name="ObjectShortName">write_dir[4:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/microprocessor_top_tb/u_probe_bridge/vif/rs1">
       <obj_property name="ElementShortName">rs1[4:0]</obj_property>
@@ -133,24 +149,25 @@
       <obj_property name="ElementShortName">pc_en</obj_property>
       <obj_property name="ObjectShortName">pc_en</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/microprocessor_top_tb/dut/mac_i/start">
-      <obj_property name="ElementShortName">start</obj_property>
-      <obj_property name="ObjectShortName">start</obj_property>
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/dut/mac_en">
+      <obj_property name="ElementShortName">mac_en</obj_property>
+      <obj_property name="ObjectShortName">mac_en</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/microprocessor_top_tb/dut/mac_i/ready">
-      <obj_property name="ElementShortName">ready</obj_property>
-      <obj_property name="ObjectShortName">ready</obj_property>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/mac_top_i/m_in">
+      <obj_property name="ElementShortName">m_in[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m_in[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/mac_i/operand_1">
-      <obj_property name="ElementShortName">operand_1[4:0]</obj_property>
-      <obj_property name="ObjectShortName">operand_1[4:0]</obj_property>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/mac_top_i/q_in">
+      <obj_property name="ElementShortName">q_in[31:0]</obj_property>
+      <obj_property name="ObjectShortName">q_in[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/mac_i/operand_2">
-      <obj_property name="ElementShortName">operand_2[4:0]</obj_property>
-      <obj_property name="ObjectShortName">operand_2[4:0]</obj_property>
+   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/mac_result">
+      <obj_property name="ElementShortName">mac_result[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mac_result[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/microprocessor_top_tb/dut/mac_i/result">
-      <obj_property name="ElementShortName">result[31:0]</obj_property>
-      <obj_property name="ObjectShortName">result[31:0]</obj_property>
+   <wvobject type="logic" fp_name="/microprocessor_top_tb/dut/mac_done">
+      <obj_property name="ElementShortName">mac_done</obj_property>
+      <obj_property name="ObjectShortName">mac_done</obj_property>
    </wvobject>
 </wave_config>

@@ -22,7 +22,8 @@ module mux_3_to_1 (
     input logic [31:0]	data_out_to_pc,
     input logic [31:0]	alu_to_mem_addr,
     input logic [31:0]	data_out_to_mux,
-    input logic [1:0]	sel,
+    input logic [31:0]  mac_to_prf,
+    input logic [1:0]	  sel,
     output logic [31:0]	data_out
     );
 
@@ -36,6 +37,9 @@ always_comb begin
         end
         INSTRUCTION_TO_PRF: begin
             data_out = data_out_to_pc;	// PC-based value
+        end
+        MAC_TO_PRF: begin 
+            data_out = mac_to_prf;
         end
         default: data_out = '0;
     endcase
