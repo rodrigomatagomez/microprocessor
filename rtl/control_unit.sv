@@ -146,6 +146,18 @@ module control_unit(
                         mac_en = 1'b1;
                       end
                     end
+                    F3_MULH: begin
+                      prf_wr_en   = 1'b0;
+                      if (mac_done) begin
+                        cu_mem_out_mux_sel = MAC_TO_PRF;  // write-back = MAC result
+                        prf_wr_en = 1'b1;
+                        pc_en  = 1'b1;
+                        mac_en = 1'b0;
+                      end else begin 
+                        pc_en  = 1'b0;
+                        mac_en = 1'b1;
+                      end
+                    end
                     default: begin 
                       prf_wr_en = 1'b1;
                       mac_en = 1'b0;

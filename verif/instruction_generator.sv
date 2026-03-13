@@ -46,7 +46,8 @@ typedef enum logic [5:0] {
   R_SRA      = 6'd32,
   R_OR       = 6'd33,
   R_AND      = 6'd34,
-  R_MUL      = 6'd35
+  R_MUL      = 6'd35,
+  R_MULH     = 6'd36
 }riscv32_kind_enum;
 
 class riscv32_rand_instruction; 

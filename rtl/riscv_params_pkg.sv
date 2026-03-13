@@ -1,6 +1,10 @@
 // rtl/riscv_params_pkg.sv
 package riscv_params_pkg;
-
+  //	------------------------
+  //	WISHBONE
+  //-	-----------------------
+  localparam AW = 32;
+  localparam DW = 32;
   // -----------------------------
   // Datapath sizing
   // -----------------------------
@@ -35,6 +39,7 @@ package riscv_params_pkg;
   localparam logic [2:0] F3_SRL_SRA     = 3'b101;
   localparam logic [2:0] F3_OR          = 3'b110;
   localparam logic [2:0] F3_AND         = 3'b111;
+  localparam logic [2:0] F3_MULH        = 3'b001;
 
   localparam logic [2:0] F3_BEQ     = 3'b000;
   localparam logic [2:0] F3_BNE     = 3'b001;

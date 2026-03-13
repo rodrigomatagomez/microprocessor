@@ -36,6 +36,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
   localparam logic [2:0] F3_SRL_SRA     = 3'b101;
   localparam logic [2:0] F3_OR          = 3'b110;
   localparam logic [2:0] F3_AND         = 3'b111;
+  localparam logic [2:0] F3_MULH        = 3'b001;
 
   localparam logic [2:0] F3_BEQ  = 3'b000;
   localparam logic [2:0] F3_BNE  = 3'b001;
@@ -152,6 +153,15 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
         instr[24:20] = it.rs2;
         instr[19:15] = it.rs1;
         instr[14:12] = F3_ADD_SUB_MUL;
+        instr[11:7]  = it.rd;
+        instr[6:0]   = OPCODE_R;
+      end
+
+      R_MULH: begin
+        instr[31:25] = F7_MUL;
+        instr[24:20] = it.rs2;
+        instr[19:15] = it.rs1;
+        instr[14:12] = F3_MULH;
         instr[11:7]  = it.rd;
         instr[6:0]   = OPCODE_R;
       end
@@ -377,7 +387,7 @@ interface instr_drive_if #(int DATA_W = 32) (input logic clk);
       L_LB, L_LH, L_LW, L_LBU, L_LHU,
       S_SB, S_SH, S_SW,
       I_SLTI, I_SLTIU, I_XORI, I_ORI, I_ANDI,
-      R_ADD, R_SUB, R_MUL, R_SLL, R_SLT, R_SLTU, R_XOR, R_SRL, R_SRA, R_OR, R_AND
+      R_ADD, R_SUB, R_MUL, R_MULH, R_SLL, R_SLT, R_SLTU, R_XOR, R_SRL, R_SRA, R_OR, R_AND
     };
 
     foreach (legal_kinds[i]) begin

@@ -51,7 +51,8 @@ module instr_kind_decode_for_waves
     R_SRA     = 6'd32,
     R_OR      = 6'd33,
     R_AND     = 6'd34,
-    R_MUL     = 6'd35
+    R_MUL     = 6'd35,
+    R_MULH    = 6'd36
   } opcode_kind_enum;
 
   // Expose this variable so it shows in waves
@@ -76,6 +77,7 @@ module instr_kind_decode_for_waves
   localparam logic [2:0] F3_SRL_SRA = 3'b101;
   localparam logic [2:0] F3_OR      = 3'b110;
   localparam logic [2:0] F3_AND     = 3'b111;
+  localparam logic [2:0] F3_MULH    = 3'b001;
 
   localparam logic [2:0] F3_BEQ  = 3'b000;
   localparam logic [2:0] F3_BNE  = 3'b001;
@@ -163,6 +165,7 @@ module instr_kind_decode_for_waves
                 actual_instruction = R_ADD;
               end
             end
+            F3_MULH: actual_instruction = R_MULH;
             F3_SLL:  actual_instruction = R_SLL;
             F3_SLT:  actual_instruction = R_SLT;
             F3_SLTU: actual_instruction = R_SLTU;

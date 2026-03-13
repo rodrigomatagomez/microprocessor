@@ -2,7 +2,13 @@
 ../../rtl/riscv_params_pkg.sv
 ../../fv/property_defines.svh
 ../../mac_israel_dd2/rtl/mac_defs.svh
-# ============================ rtl
+# ===================RTL==========================
+# ============================ wishbone
+../../rtl/wb_master.sv
+../../rtl/wb_reg.sv
+../../rtl/wb_loader.sv
+../../rtl/wishbone_top.sv
+# ============================ microprocessor
 ../../rtl/mux.sv
 ../../rtl/mux_operand_1.sv
 ../../rtl/program_counter.sv
@@ -18,13 +24,14 @@
 ../../rtl/control_unit.sv
 #============================ MAC
 ../../mac_israel_dd2/rtl/accumulator_unit.sv
-../../mac_israel_dd2/rtl/adder_acc.sv
+../../mac_israel_dd2/rtl/mac_adder.sv
 ../../mac_israel_dd2/rtl/booth_datapath.sv
 ../../mac_israel_dd2/rtl/booth_fsm.sv
 ../../mac_israel_dd2/rtl/booth_multiplier.sv
 ../../mac_israel_dd2/rtl/mac_top.sv
 #==============================
 ../../rtl/microprocessor_top.sv
+#=================================================
 # ============================ verification
 ../instruction_generator.sv
 ../instr_kind_decode_for_waves.sv

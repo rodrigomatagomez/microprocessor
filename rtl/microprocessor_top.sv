@@ -22,8 +22,13 @@ module microprocessor_top (
     input logic                    clk,
     input logic                    arst_n,
     input logic                    instr_en,
-    input logic [DATA_WIDTH-1:0]   driven_instr
+    //input logic [DATA_WIDTH-1:0]   driven_instr,
 
+    input logic                    imem_wr_en,
+    input logic [AW-1:0]           imem_wr_addr,
+    input logic [DATA_WIDTH-1:0]   imem_wr_data,
+    input logic                    prog_rdy,
+    input logic                    uC_out_ready
 );
 
 
@@ -78,8 +83,12 @@ module microprocessor_top (
 
     // Instruction memory (word-indexed; PC is byte-addressed)
     instruction_memory #(.DATA_WIDTH(DATA_WIDTH), .DEPTH(DEPTH)) instr_mem_i (
-        .pc   (pc_q),
-        .instr(mem_instruction)
+        .clk              (clk),
+        .pc               (pc_q),
+        .instr            (instruction),
+        .we               (imem_wr_en),
+        .wr_addr          (imem_wr_addr),
+        .wr_data          (imem_wr_data)
     );
 
     //--------------------------------------------------------------------------
@@ -244,6 +253,8 @@ module microprocessor_top (
       .ready(mac_done)
     );
 
-    assign instruction = instr_en ? driven_instr : mem_instruction;
-    
+    //assign instruction = instr_en ? driven_instr : mem_instruction;
+    assign pc_en = program_rdy;
+    assign uC_out_ready = (alu_result == 32'hDEADBEEF) ? 1'b1 : 1'b0;
+
 endmodule

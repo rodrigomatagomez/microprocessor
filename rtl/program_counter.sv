@@ -19,7 +19,9 @@ module program_counter #(
 )(
 	input logic                     clk,
 	input logic                     arst_n,
+  input logic                     loader_busy,
   input logic                     pc_en,
+  input logic                     loaded,
 	input logic  [DATA_WIDTH - 1:0] pc_in,
 	output logic [DATA_WIDTH - 1:0] pc_out
 );
@@ -27,7 +29,7 @@ module program_counter #(
     always_ff @(posedge clk, negedge arst_n) begin
         if (!arst_n) begin
             pc_out <= RESET_PC; //Reset PC to boot address
-        end else if (pc_en)  begin   
+        end else if (pc_en && (!loader_busy) && loaded)  begin   
             pc_out <= pc_in;
        end
     end
