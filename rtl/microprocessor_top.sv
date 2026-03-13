@@ -21,14 +21,15 @@ import riscv_params_pkg::*;
 module microprocessor_top (
     input logic                    clk,
     input logic                    arst_n,
-    input logic                    instr_en,
+    //input logic                    instr_en,
     //input logic [DATA_WIDTH-1:0]   driven_instr,
 
-    input logic                    imem_wr_en,
-    input logic [AW-1:0]           imem_wr_addr,
-    input logic [DATA_WIDTH-1:0]   imem_wr_data,
-    input logic                    prog_rdy,
-    input logic                    uC_out_ready
+    input  logic                    imem_wr_en,
+    input  logic [AW-1:0]           imem_wr_addr,
+    input  logic [DATA_WIDTH-1:0]   imem_wr_data,
+    input  logic                    prog_rdy,
+    output logic [DATA_WIDTH-1:0]   uc_out,
+    output logic                    uc_out_ready
 );
 
 
@@ -105,6 +106,8 @@ module microprocessor_top (
 
     physical_register_file #(.DIR_WIDTH(DIR_WIDTH), .DATA_WIDTH(DATA_WIDTH)) prf_i (
         .clk       (clk),
+10000000)
+
         .arst_n    (arst_n),
         .write_en  (rf_we),
         .read_dir1 (instruction[19:15]),   // rs1
@@ -255,6 +258,7 @@ module microprocessor_top (
 
     //assign instruction = instr_en ? driven_instr : mem_instruction;
     assign pc_en = program_rdy;
-    assign uC_out_ready = (alu_result == 32'hDEADBEEF) ? 1'b1 : 1'b0;
+    assign uc_out_ready = (alu_result == 32'hDEADBEEF) ? 1'b1 : 1'b0;
+    assign uc_out = wb_data;
 
 endmodule
