@@ -258,7 +258,7 @@ module microprocessor_top (
 
     //assign instruction = instr_en ? driven_instr : mem_instruction;
     assign pc_en = program_rdy;
-    assign uc_out_ready = (alu_result == 32'hDEADBEEF) ? 1'b1 : 1'b0;
+    assign uc_out_ready = (alu_result == 32'h8000_00CC) ? 1'b1 : 1'b0;
     assign uc_out = wb_data;
 
 endmodule
