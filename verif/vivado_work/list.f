@@ -1,14 +1,15 @@
 # ============================ pckg, svh
 ../../rtl/riscv_params_pkg.sv
-../../fv/property_defines.svh
+#../../fv/property_defines.svh
 ../../mac_israel_dd2/rtl/mac_defs.svh
 # ===================RTL==========================
 # ============================ wishbone
-../../rtl/wb_master.sv
-../../rtl/wb_reg.sv
-../../rtl/wb_loader.sv
-../../rtl/wishbone_top.sv
+#../../rtl/wb_master.sv
+#../../rtl/wb_reg.sv
+#../../rtl/wb_loader.sv
+#../../rtl/wishbone_top.sv
 # ============================ microprocessor
+#../../rtl/test1.hex
 ../../rtl/mux.sv
 ../../rtl/mux_operand_1.sv
 ../../rtl/program_counter.sv
@@ -33,10 +34,10 @@
 ../../rtl/microprocessor_top.sv
 #=================================================
 # ============================ verification
-../instruction_generator.sv
+#../instruction_generator.sv
 ../instr_kind_decode_for_waves.sv
-../instr_drive_if.sv
-../microprocessor_if.sv
-../microprocessor_probe_bridge.sv
+#../instr_drive_if.sv
+#../microprocessor_if.sv
+#../microprocessor_probe_bridge.sv
 #../../fv/fv_microprocessor_top.sv
 ../microprocessor_top_tb.sv

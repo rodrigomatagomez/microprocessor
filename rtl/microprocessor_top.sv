@@ -29,6 +29,7 @@ module microprocessor_top (
     input  logic [DATA_WIDTH-1:0]   imem_wr_data,
     input  logic                    prog_rdy,
     output logic [DATA_WIDTH-1:0]   uc_out,
+    output logic                    uc_out_valid,
     output logic                    uc_out_ready
 );
 
@@ -42,7 +43,6 @@ module microprocessor_top (
     logic [DATA_WIDTH-1:0] pc_plus_inc;     // sequential next PC (PC + inc)
     logic                  pc_inc_sel;      // +4 vs +2 selector (future)
     logic [2:0]            pc_inc;          // increment constant (2 or 4)
-    logic                  pc_en;    
     logic [DATA_WIDTH-1:0] instruction;
     logic [DATA_WIDTH-1:0] mem_instruction;           // fetched instruction
 
@@ -64,7 +64,7 @@ module microprocessor_top (
     program_counter pc_i (
         .clk   (clk),
         .arst_n(arst_n),
-        .pc_en(pc_en),
+        .pc_en(prog_rdy),
         .pc_in (pc_next),
         .pc_out(pc_q)
     );
@@ -106,8 +106,6 @@ module microprocessor_top (
 
     physical_register_file #(.DIR_WIDTH(DIR_WIDTH), .DATA_WIDTH(DATA_WIDTH)) prf_i (
         .clk       (clk),
-10000000)
-
         .arst_n    (arst_n),
         .write_en  (rf_we),
         .read_dir1 (instruction[19:15]),   // rs1
@@ -207,7 +205,8 @@ module microprocessor_top (
 
     mux_3_to_1 wb_mux_i (
         .data_out_to_pc   (pc_plus_inc),  // PC+4 (link address)
-        .alu_to_mem_addr  (alu_result),   // ALU result
+        .alu_to_mem_addr  (alu_result
+),   // ALU result
         .data_out_to_mux  (dmem_rdata),   // memory read data
         .mac_to_prf       (mac_result),
         .sel              (wb_sel),
@@ -257,8 +256,7 @@ module microprocessor_top (
     );
 
     //assign instruction = instr_en ? driven_instr : mem_instruction;
-    assign pc_en = program_rdy;
-    assign uc_out_ready = (alu_result == 32'h8000_00CC) ? 1'b1 : 1'b0;
+    assign uc_out_ready = (pc_q == pc_next) ? 1'b1 : 1'b0;
     assign uc_out = wb_data;
-
+    assign uc_out_valid = (instruction[6:0] == 7'b000_0011) ? 1'b1 : 1'b0;
 endmodule
