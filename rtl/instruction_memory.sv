@@ -25,7 +25,7 @@ module instruction_memory #(
     for (int i = 0; i < (MEM_SIZE/4); i = i + 1) begin
         mem[i] = 32'h00000000;
     end
-        $readmemh("/home/rodrigo_mata/Documents/git/microprocessor/rtl/test1.hex", mem);
+        $readmemh("/home/rodrigo_mata/Documents/git/microprocessor/rtl/test_3.hex", mem);
     end
 
     // -----------------------------
