@@ -25,7 +25,7 @@ module microprocessor_top (
     //input logic [DATA_WIDTH-1:0]   driven_instr,
 
     input  logic                    imem_wr_en,
-    input  logic [AW-1:0]           imem_wr_addr,
+    input  logic [DATA_WIDTH-1:0]           imem_wr_addr,
     input  logic [DATA_WIDTH-1:0]   imem_wr_data,
     input  logic                    prog_rdy,
     output logic [DATA_WIDTH-1:0]   uc_out,
